@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import BrandLogo from "./BrandLogo";
 
 export default function PageLoader({ onComplete }) {
   const canvasRef = useRef(null);
@@ -116,11 +117,7 @@ export default function PageLoader({ onComplete }) {
           className="relative"
         >
           <div className="absolute inset-0 blur-[40px] bg-accent/30 rounded-full scale-125" />
-          <img
-            src="/images/chromologlogo.webp"
-            alt="Chromolog Technologies"
-            className="relative w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-2xl"
-          />
+          <BrandLogo className="relative w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-2xl" />
         </motion.div>
 
         {/* Brand name */}

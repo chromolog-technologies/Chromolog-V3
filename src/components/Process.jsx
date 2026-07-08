@@ -20,7 +20,7 @@ export default function Process() {
   return (
     <>
       {/* 1. Cinematic Vertical Timeline Pipeline */}
-      <section id="process" className="relative bg-bg-dark overflow-hidden py-24 border-t border-white/[0.05]">
+      <section id="process" className="relative bg-bg-dark overflow-hidden py-20 md:py-24 border-t border-white/[0.05]">
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.012] pointer-events-none z-0" />
         <div className="absolute top-[30%] left-[20%] w-[350px] h-[350px] bg-primary/4 blur-[110px] pointer-events-none rounded-full" />
         <div className="absolute bottom-[20%] right-[10%] w-[300px] h-[300px] bg-accent/3 blur-[100px] pointer-events-none rounded-full" />
@@ -28,7 +28,7 @@ export default function Process() {
         <div className="max-w-5xl mx-auto px-6 md:px-8 relative z-10">
 
           {/* Section Head */}
-          <div className="section-head reveal text-center max-w-3xl mx-auto mb-20">
+          <div className="section-head reveal text-center max-w-3xl mx-auto mb-14 md:mb-16">
             <Badge variant="ai" className="mb-3 px-3 py-1 text-xs">How We Work</Badge>
             <h2 className="text-3xl md:text-4xl font-bold font-heading text-white mt-2">
               Our 8-step delivery pipeline,<br />
@@ -42,9 +42,17 @@ export default function Process() {
           {/* Vertical Timeline */}
           <div className="relative">
             {/* Central connector line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/[0.08] to-transparent hidden md:block" />
+            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/[0.08] to-transparent" />
+            <motion.div
+              className="absolute left-4 md:left-1/2 top-0 w-px origin-top bg-gradient-to-b from-accent via-primary to-purple-glow"
+              initial={{ scaleY: 0, opacity: 0 }}
+              whileInView={{ scaleY: 1, opacity: 0.75 }}
+              viewport={{ once: true, margin: "-120px" }}
+              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+              style={{ height: "100%" }}
+            />
 
-            <div className="space-y-0">
+            <div className="space-y-5 md:space-y-0">
               {steps.map((step, idx) => {
                 const StepIcon = step.icon;
                 const isLeft = idx % 2 === 0;
@@ -52,14 +60,14 @@ export default function Process() {
                 return (
                   <motion.div
                     key={idx}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.55, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
-                    className={`relative flex items-center gap-0 md:gap-8 ${isLeft ? "md:flex-row" : "md:flex-row-reverse"} flex-col md:flex-row mb-0`}
+                    initial={{ opacity: 0, x: isLeft ? -42 : 42, scale: 0.96, filter: "blur(6px)" }}
+                    whileInView={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                    viewport={{ once: true, amount: 0.38, margin: "-40px 0px -80px 0px" }}
+                    transition={{ duration: 0.62, delay: idx * 0.035, ease: [0.16, 1, 0.3, 1] }}
+                    className={`relative flex items-start md:items-center gap-4 md:gap-8 ${isLeft ? "md:flex-row" : "md:flex-row-reverse"} flex-row mb-0 pl-10 md:pl-0`}
                   >
                     {/* Card side */}
-                    <div className="w-full md:w-[calc(50%-2.5rem)] py-4">
+                    <div className="w-full md:w-[calc(50%-2.5rem)] py-0 md:py-4">
                       <div
                         className={`group relative rounded-2xl border border-white/[0.06] bg-[#0A0F1D]/40 hover:border-white/[0.12] hover:bg-white/[0.02] transition-all duration-400 p-6 shadow-lg ${isLeft ? "md:mr-auto" : "md:ml-auto"}`}
                       >
@@ -94,12 +102,13 @@ export default function Process() {
                     </div>
 
                     {/* Center node (desktop only) */}
-                    <div className="hidden md:flex flex-col items-center z-10 shrink-0 w-10">
+                    <div className="absolute left-0 top-6 md:static flex flex-col items-center z-10 shrink-0 w-8 md:w-10">
                       <motion.div
-                        whileInView={{ scale: [0, 1.2, 1] }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: 0.15 }}
-                        className="w-9 h-9 rounded-full border-2 flex items-center justify-center text-[10px] font-extrabold font-heading shadow-lg"
+                        initial={{ scale: 0.4, opacity: 0 }}
+                        whileInView={{ scale: [0.4, 1.2, 1], opacity: 1 }}
+                        viewport={{ once: true, amount: 0.6 }}
+                        transition={{ duration: 0.5, delay: 0.08 }}
+                        className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 flex items-center justify-center text-[9px] md:text-[10px] font-extrabold font-heading shadow-lg"
                         style={{
                           background: `${step.color}18`,
                           borderColor: `${step.color}60`,
@@ -111,26 +120,17 @@ export default function Process() {
                       </motion.div>
                       {/* Connecting segment line */}
                       {idx < steps.length - 1 && (
-                        <div
-                          className="w-px flex-1 mt-0"
+                        <motion.div
+                          initial={{ scaleY: 0 }}
+                          whileInView={{ scaleY: 1 }}
+                          viewport={{ once: true, amount: 0.5 }}
+                          transition={{ duration: 0.55, delay: 0.22 }}
+                          className="hidden md:block w-px flex-1 mt-0 origin-top"
                           style={{
                             background: `linear-gradient(to bottom, ${step.color}40, ${steps[idx + 1].color}25)`,
                             minHeight: "2.5rem",
                           }}
                         />
-                      )}
-                    </div>
-
-                    {/* Mobile: step num badge */}
-                    <div className="md:hidden flex items-center gap-2 self-start mt-0 mb-2 order-first">
-                      <div
-                        className="w-7 h-7 rounded-full border flex items-center justify-center text-[9px] font-extrabold font-heading"
-                        style={{ background: `${step.color}18`, borderColor: `${step.color}60`, color: step.color }}
-                      >
-                        {step.num}
-                      </div>
-                      {idx < steps.length - 1 && (
-                        <div className="w-6 h-px" style={{ background: `${step.color}40` }} />
                       )}
                     </div>
 
@@ -145,7 +145,7 @@ export default function Process() {
       </section>
 
       {/* 2. Premium Analytics & Success Statistics Dashboard */}
-      <section className="relative py-24 bg-bg-dark/45 border-t border-white/[0.05] overflow-hidden">
+      <section className="relative py-20 md:py-24 bg-bg-dark/45 border-t border-white/[0.05] overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
@@ -214,4 +214,3 @@ export default function Process() {
     </>
   );
 }
-

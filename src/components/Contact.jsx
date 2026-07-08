@@ -7,6 +7,8 @@ import {
 } from '../utils/analytics';
 import { trackCTAInterest, trackServiceInterest } from '../utils/visitor';
 
+const WHATSAPP_URL = 'https://wa.me/919400230723?text=Hi%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.';
+
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
@@ -210,6 +212,17 @@ export default function Contact() {
                 <div>
                   <strong>Phone</strong>
                   <div><a href="tel:+919400230723" onClick={() => trackPhoneClick('+919400230723')}>+91 9400230723</a></div>
+                </div>
+              </div>
+              <div className="contact-item">
+                <i className="ri-whatsapp-line" aria-hidden="true"></i>
+                <div>
+                  <strong>WhatsApp</strong>
+                  <div>
+                    <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                      Message us on WhatsApp
+                    </a>
+                  </div>
                 </div>
               </div>
               <div className="contact-item">

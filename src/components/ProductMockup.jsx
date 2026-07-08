@@ -79,7 +79,7 @@ export default function ProductMockup({ navigateToSection }) {
   };
 
   return (
-    <section className="relative bg-bg-dark overflow-hidden py-24 border-t border-white/[0.05]" id="product">
+    <section className="relative bg-bg-dark overflow-hidden py-16 md:py-24 border-t border-white/[0.05]" id="product">
       {/* Aurora overlays */}
       <div className="absolute top-[-10%] left-[-20%] w-[500px] h-[500px] bg-primary/6 blur-[120px] pointer-events-none rounded-full" />
       <div className="absolute bottom-[20%] right-[-20%] w-[450px] h-[450px] bg-secondary/5 blur-[100px] pointer-events-none rounded-full" />

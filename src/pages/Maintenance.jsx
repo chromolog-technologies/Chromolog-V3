@@ -2,6 +2,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Settings, Clock, Mail, MessageSquare } from "lucide-react";
 
+const WHATSAPP_URL = "https://wa.me/919400230723?text=Hi%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.";
+
 export default function Maintenance() {
   return (
     <div className="relative min-h-[80vh] flex items-center justify-center overflow-hidden px-6">
@@ -65,7 +67,7 @@ export default function Maintenance() {
             Email Us
           </a>
           <a
-            href="https://wa.me/+919400230723"
+            href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-white/[0.08] bg-white/[0.02] text-white font-heading font-bold text-sm hover:border-white/[0.15] hover:bg-white/[0.04] transition-colors"

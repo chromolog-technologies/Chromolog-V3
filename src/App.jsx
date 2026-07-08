@@ -23,6 +23,7 @@ import PageLoader from "./components/PageLoader";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
+import Careers from "./pages/Careers";
 
 // Analytics hooks
 import useScrollDepth from "./hooks/useScrollDepth";
@@ -35,6 +36,7 @@ const TechOrbit = lazy(() => import("./components/TechOrbit"));
 const IndustryExplorer = lazy(() => import("./components/IndustryExplorer"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Recommendations = lazy(() => import("./components/Recommendations"));
+const WHATSAPP_URL = "https://wa.me/919400230723?text=Hi%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -98,7 +100,12 @@ class ErrorBoundary extends Component {
 
 // ─── Main App ───────────────────────────────────────────────────────
 export default function App() {
-  const [activePage, setActivePage] = useState("home");
+  const [activePage, setActivePage] = useState(() => {
+    if (typeof window === "undefined") return "home";
+    const path = window.location.pathname.replace(/^\/+/, "");
+    if (["blog", "privacy", "terms", "careers"].includes(path)) return path;
+    return "home";
+  });
   const [isLoading, setIsLoading] = useState(() => {
     // Only show cinematic loader once per session
     if (typeof window !== "undefined" && sessionStorage.getItem("chromolog_loaded")) {
@@ -117,6 +124,15 @@ export default function App() {
     const pagePath = activePage === "home" ? "/" : `/${activePage}`;
     trackPageView(pagePath);
   }, [activePage]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.replace(/^\/+/, "");
+      setActivePage(["blog", "privacy", "terms", "careers"].includes(path) ? path : "home");
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   // Handle cinematic loader completion
   const handleLoaderComplete = () => {
@@ -197,6 +213,7 @@ export default function App() {
   const navigateToSection = (sectionId) => {
     if (activePage !== "home") {
       setActivePage("home");
+      window.history.pushState({}, "", "/");
       sessionStorage.setItem("scrollTarget", sectionId);
     } else {
       const el = document.getElementById(sectionId);
@@ -213,7 +230,7 @@ export default function App() {
   };
 
   // Determine which page to show (fallback to 404 for unknown values)
-  const knownPages = ["home", "privacy", "terms", "blog", "404", "500", "offline", "maintenance"];
+  const knownPages = ["home", "privacy", "terms", "blog", "careers", "404", "500", "offline", "maintenance"];
   const resolvedPage = knownPages.includes(activePage) ? activePage : "404";
 
   return (
@@ -280,6 +297,7 @@ export default function App() {
               <Blog />
             </Suspense>
           )}
+          {resolvedPage === "careers" && <Careers />}
           {resolvedPage === "404" && <NotFound setActivePage={setActivePage} />}
         </main>
       </ErrorBoundary>
@@ -299,7 +317,7 @@ export default function App() {
       {/* WhatsApp Floating FAB */}
       <a
         className="whatsapp-fab group"
-        href="https://wa.me/+919400230723"
+        href={WHATSAPP_URL}
         target="_blank"
         rel="noopener noreferrer"
         onClick={trackWhatsApp}

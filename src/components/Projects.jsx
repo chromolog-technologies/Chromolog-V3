@@ -163,7 +163,7 @@ export default function Projects() {
   };
 
   return (
-    <section id="projects" className="relative bg-bg-dark overflow-hidden py-24 border-t border-white/[0.05]">
+    <section id="projects" className="relative bg-bg-dark overflow-hidden py-16 md:py-24 border-t border-white/[0.05]">
       
       <AnimatePresence mode="wait">
         {!selectedProject ? (

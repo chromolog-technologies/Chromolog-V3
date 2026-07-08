@@ -28,6 +28,7 @@ const technologies = [
   { name: "Docker", icon: "ri-instance-fill", color: "#2496ED" },
   { name: "AWS", icon: "ri-cloud-fill", color: "#FF9900" },
   { name: "PostgreSQL", icon: "ri-database-fill", color: "#336791" },
+  { name: "Redis", icon: "ri-database-2-fill", color: "#DC382D" },
 ];
 
 const personalization = {
@@ -61,8 +62,11 @@ const personalization = {
 export default function Hero({ navigateToSection }) {
   const [wordIndex, setWordIndex] = useState(0);
   const heroRef = useRef(null);
+  const stackScrollerRef = useRef(null);
+  const dragState = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false });
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [industry, setIndustry] = useState(() => detectIndustry());
+  const [isStackDragging, setIsStackDragging] = useState(false);
   const activePersonalization = personalization[industry];
 
   useEffect(() => {
@@ -104,6 +108,31 @@ export default function Hero({ navigateToSection }) {
     trackCTA("hero_explore_solutions", activePersonalization?.badge || "default");
     trackCTAInterest(`Hero explore: ${activePersonalization?.badge || "default"}`);
     navigateToSection("projects");
+  };
+
+  const handleStackPointerDown = (event) => {
+    if (!stackScrollerRef.current) return;
+    dragState.current = {
+      active: true,
+      startX: event.clientX,
+      scrollLeft: stackScrollerRef.current.scrollLeft,
+      moved: false,
+    };
+    setIsStackDragging(true);
+    stackScrollerRef.current.setPointerCapture?.(event.pointerId);
+  };
+
+  const handleStackPointerMove = (event) => {
+    if (!dragState.current.active || !stackScrollerRef.current) return;
+    const delta = event.clientX - dragState.current.startX;
+    if (Math.abs(delta) > 4) dragState.current.moved = true;
+    stackScrollerRef.current.scrollLeft = dragState.current.scrollLeft - delta;
+  };
+
+  const handleStackPointerUp = (event) => {
+    dragState.current.active = false;
+    setIsStackDragging(false);
+    stackScrollerRef.current?.releasePointerCapture?.(event.pointerId);
   };
 
   return (
@@ -322,22 +351,34 @@ export default function Hero({ navigateToSection }) {
       </section>
 
       {/* Technology Trust Section: Infinite Logo Carousel */}
-      <section className="relative py-12 bg-bg-dark/50 border-y border-white/[0.06] overflow-hidden" aria-label="Trusted Technologies">
+      <section className="relative py-8 md:py-10 bg-bg-dark/50 border-y border-white/[0.06] overflow-hidden" aria-label="Trusted Technologies">
         <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10 flex flex-col md:flex-row items-center gap-6">
           <div className="text-sm font-heading font-semibold text-muted-text uppercase tracking-wider shrink-0 select-none">
             Our Core Stack
           </div>
           
-          <div className="w-full overflow-hidden relative mask-gradient">
-            {/* Infinite slider container */}
-            <div className="flex gap-8 items-center w-max animate-[marquee_35s_linear_infinite] hover:[animation-play-state:paused]">
-              {/* Double array rendering for infinite marquee flow */}
-              {[...technologies, ...technologies, ...technologies].map((tech, idx) => (
+          <div className="w-full overflow-hidden relative stack-fade-edges">
+            <div
+              ref={stackScrollerRef}
+              className={`core-stack-scroll flex gap-3 md:gap-4 items-center overflow-x-auto scroll-smooth py-2 px-1 select-none ${isStackDragging ? "is-dragging" : ""}`}
+              onPointerDown={handleStackPointerDown}
+              onPointerMove={handleStackPointerMove}
+              onPointerUp={handleStackPointerUp}
+              onPointerCancel={handleStackPointerUp}
+              onPointerLeave={() => {
+                dragState.current.active = false;
+                setIsStackDragging(false);
+              }}
+            >
+              {technologies.map((tech, idx) => (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => trackTechClick(tech.name)}
-                  className="flex items-center gap-2 px-4 py-2 border border-white/[0.05] rounded-xl bg-white/[0.02] select-none text-muted-text hover:text-white-text hover:border-white/10 hover:bg-white/[0.04] transition-all"
+                  onClick={() => {
+                    if (dragState.current.moved) return;
+                    trackTechClick(tech.name);
+                  }}
+                  className="core-stack-card flex shrink-0 items-center gap-2 px-4 py-2.5 border border-white/[0.06] rounded-xl bg-white/[0.025] text-muted-text hover:text-white-text hover:border-white/15 hover:bg-white/[0.05] transition-all"
                 >
                   <i className={`${tech.icon} text-lg`} style={{ color: tech.color }} />
                   <span className="text-xs font-semibold font-heading tracking-wide">{tech.name}</span>

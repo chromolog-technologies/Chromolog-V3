@@ -101,7 +101,7 @@ export default function Testimonials() {
   };
 
   return (
-    <section className="relative bg-bg-dark py-24 border-t border-white/[0.05]" id="testimonials">
+    <section className="relative bg-bg-dark py-16 md:py-24 border-t border-white/[0.05]" id="testimonials">
       <div className="absolute top-[20%] right-[-10%] w-[350px] h-[350px] bg-primary/4 blur-[110px] pointer-events-none rounded-full" />
       <div className="absolute bottom-[20%] left-[-10%] w-[300px] h-[300px] bg-secondary/3 blur-[95px] pointer-events-none rounded-full" />
 

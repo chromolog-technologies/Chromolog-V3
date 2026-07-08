@@ -47,7 +47,7 @@ export default function TechOrbit() {
   }, []);
 
   return (
-    <section className="relative bg-bg-dark overflow-hidden py-24 border-t border-white/[0.05]" id="ecosystem">
+    <section className="relative bg-bg-dark overflow-hidden py-16 md:py-24 border-t border-white/[0.05]" id="ecosystem">
       {/* Background Orbs */}
       <div className="absolute top-[20%] left-[-15%] w-[400px] h-[400px] bg-primary/4 blur-[120px] pointer-events-none rounded-full animate-pulse" />
       <div className="absolute bottom-[20%] right-[-15%] w-[350px] h-[350px] bg-accent/4 blur-[100px] pointer-events-none rounded-full" />

@@ -42,7 +42,7 @@ export default function About({ navigateToSection }) {
   const selectedStory = stories.find((s) => s.id === activeStory);
 
   return (
-    <section id="about" className="relative bg-bg-dark overflow-hidden py-24">
+    <section id="about" className="relative bg-bg-dark overflow-hidden py-16 md:py-24">
       {/* Background orbs */}
       <div className="absolute top-[20%] left-[-10%] w-[350px] h-[350px] bg-primary/4 blur-[100px] pointer-events-none rounded-full" />
       <div className="absolute bottom-[20%] right-[-10%] w-[300px] h-[300px] bg-secondary/4 blur-[90px] pointer-events-none rounded-full" />

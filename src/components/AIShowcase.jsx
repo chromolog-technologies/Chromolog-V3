@@ -43,7 +43,7 @@ export default function AIShowcase() {
   const [activeTab, setActiveTab] = useState("agents");
 
   return (
-    <section id="ai" className="relative bg-bg-dark overflow-hidden py-24 border-t border-white/[0.05]">
+    <section id="ai" className="relative bg-bg-dark overflow-hidden py-16 md:py-24 border-t border-white/[0.05]">
       {/* Background Neural Grid */}
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.015] pointer-events-none z-0" />
       <div className="absolute top-[10%] right-[10%] w-[350px] h-[350px] bg-secondary/5 blur-[120px] pointer-events-none rounded-full" />

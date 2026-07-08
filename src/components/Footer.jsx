@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Mail, Phone, MapPin, Send, Award, Shield } from "lucide-react";
 import { Input } from "./ui/Input";
 import Button from "./ui/Button";
+import BrandLogo from "./BrandLogo";
 
 export default function Footer({ setActivePage, navigateToSection }) {
   const currentYear = new Date().getFullYear();
@@ -12,8 +13,14 @@ export default function Footer({ setActivePage, navigateToSection }) {
     e.preventDefault();
     if (sectionId === "blog") {
       setActivePage("blog");
+      window.history.pushState({}, "", "/blog");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (sectionId === "careers") {
+      setActivePage("careers");
+      window.history.pushState({}, "", "/careers");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
+      window.history.pushState({}, "", "/");
       navigateToSection(sectionId);
     }
   };
@@ -21,6 +28,7 @@ export default function Footer({ setActivePage, navigateToSection }) {
   const handleLegalLinkClick = (e, pageKey) => {
     e.preventDefault();
     setActivePage(pageKey);
+    window.history.pushState({}, "", `/${pageKey}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -48,16 +56,12 @@ export default function Footer({ setActivePage, navigateToSection }) {
               onClick={(e) => {
                 e.preventDefault();
                 setActivePage("home");
+                window.history.pushState({}, "", "/");
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               aria-label="Chromolog Home"
             >
-              <img
-                className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-102 rounded-lg"
-                src="images/chromologlogo.webp"
-                alt="Chromolog Technologies logo"
-                loading="lazy"
-              />
+              <BrandLogo compact className="h-10 w-auto max-w-[142px]" />
             </a>
             <p className="text-muted-text text-sm leading-relaxed">
               We build premium software that transforms businesses — web, mobile, AI, and custom platforms engineered to scale. Architecting the future of software development.
@@ -129,6 +133,7 @@ export default function Footer({ setActivePage, navigateToSection }) {
               <a href="#product" onClick={(e) => handleLinkClick(e, "product")} className="text-muted-text hover:text-white transition-colors duration-300">SaaS Product</a>
               <a href="#process" onClick={(e) => handleLinkClick(e, "process")} className="text-muted-text hover:text-white transition-colors duration-300">Our Process</a>
               <a href="#blog" onClick={(e) => handleLinkClick(e, "blog")} className="text-muted-text hover:text-white transition-colors duration-300">Knowledge Hub</a>
+              <a href="/careers" onClick={(e) => handleLinkClick(e, "careers")} className="text-muted-text hover:text-white transition-colors duration-300">Careers</a>
             </nav>
           </div>
 
