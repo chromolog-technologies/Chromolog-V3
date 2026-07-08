@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense, Component } from "react";
 import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { AnimatePresence } from "framer-motion";
 
+// Core components (always loaded)
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import About from "./components/About";
@@ -15,30 +17,117 @@ import Testimonials from "./components/Testimonials";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import CursorFollower from "./components/CursorFollower";
+import AIChat from "./components/AIChat";
+import CookieConsent from "./components/CookieConsent";
+import PageLoader from "./components/PageLoader";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
-import TechOrbit from "./components/TechOrbit";
-import IndustryExplorer from "./components/IndustryExplorer";
-import Blog from "./pages/Blog";
+import NotFound from "./pages/NotFound";
+
+// Analytics hooks
+import useScrollDepth from "./hooks/useScrollDepth";
+import useTimeOnPage from "./hooks/useTimeOnPage";
+import { trackPageView } from "./utils/analytics";
+
+// Lazy-loaded heavy components
+const TechOrbit = lazy(() => import("./components/TechOrbit"));
+const IndustryExplorer = lazy(() => import("./components/IndustryExplorer"));
+const Blog = lazy(() => import("./pages/Blog"));
+const Recommendations = lazy(() => import("./components/Recommendations"));
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
 
+// ─── Reduced Motion Detector ────────────────────────────────────────
+const prefersReducedMotion =
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ─── Section Loading Skeleton ───────────────────────────────────────
+function SectionSkeleton() {
+  return (
+    <div className="w-full py-20 flex items-center justify-center" aria-hidden="true">
+      <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-accent/60 animate-spin" />
+    </div>
+  );
+}
+
+// ─── Error Boundary ─────────────────────────────────────────────────
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, info) {
+    console.error("[Chromolog ErrorBoundary]", error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-[60vh] flex items-center justify-center px-6">
+          <div className="text-center max-w-md">
+            <div className="text-6xl font-heading font-extrabold bg-gradient-to-b from-white/15 to-white/[0.03] bg-clip-text text-transparent mb-6">
+              500
+            </div>
+            <h2 className="text-xl font-heading font-bold text-white mb-3">
+              Something went wrong
+            </h2>
+            <p className="text-muted-text text-sm font-body mb-6">
+              An unexpected error occurred. Please try refreshing the page.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 rounded-xl bg-primary text-white text-sm font-heading font-bold hover:bg-primary/90 transition-colors"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// ─── Main App ───────────────────────────────────────────────────────
 export default function App() {
   const [activePage, setActivePage] = useState("home");
+  const [isLoading, setIsLoading] = useState(() => {
+    // Only show cinematic loader once per session
+    if (typeof window !== "undefined" && sessionStorage.getItem("chromolog_loaded")) {
+      return false;
+    }
+    return true;
+  });
+
+  // Analytics hooks
+  useScrollDepth();
+  useTimeOnPage();
+
+  // Track SPA page views
+  useEffect(() => {
+    const pagePath = activePage === "home" ? "/" : `/${activePage}`;
+    trackPageView(pagePath);
+  }, [activePage]);
+
+  // Handle cinematic loader completion
+  const handleLoaderComplete = () => {
+    setIsLoading(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("chromolog_loaded", "1");
+    }
+  };
 
   useEffect(() => {
-    // Hide page loader with premium fade transition
-    const timer = setTimeout(() => {
-      const loader = document.getElementById("pageLoader");
-      if (loader) loader.classList.add("is-hidden");
-      document.body.classList.remove("is-loading");
-    }, 500);
+    // Skip smooth scroll for reduced motion
+    if (prefersReducedMotion) return;
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
     // Initialize Lenis smooth scroll
     const lenis = new Lenis({
       duration: 1.2,
@@ -59,25 +148,27 @@ export default function App() {
     gsap.ticker.lagSmoothing(0);
 
     // Initialize ScrollTrigger reveal animations for elements with '.reveal' class
-    const revealElements = document.querySelectorAll(".reveal");
-    revealElements.forEach((el) => {
-      gsap.fromTo(
-        el,
-        { opacity: 0, y: 35, filter: "blur(6px)" },
-        {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          duration: 0.8,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 88%",
-            toggleActions: "play none none none",
-          },
-        }
-      );
-    });
+    if (!prefersReducedMotion) {
+      const revealElements = document.querySelectorAll(".reveal");
+      revealElements.forEach((el) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 35, filter: "blur(6px)" },
+          {
+            opacity: 1,
+            y: 0,
+            filter: "blur(0px)",
+            duration: 0.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 88%",
+              toggleActions: "play none none none",
+            },
+          }
+        );
+      });
+    }
 
     // Scroll to saved section if returning to home
     if (activePage === "home") {
@@ -112,14 +203,28 @@ export default function App() {
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth"
+          behavior: prefersReducedMotion ? "auto" : "smooth",
         });
       }
     }
   };
 
+  // Determine which page to show (fallback to 404 for unknown values)
+  const knownPages = ["home", "privacy", "terms", "blog", "404", "500", "offline", "maintenance"];
+  const resolvedPage = knownPages.includes(activePage) ? activePage : "404";
+
   return (
     <div className="relative min-h-screen bg-bg-dark text-white-text overflow-hidden font-body selection:bg-primary/30 selection:text-white">
+      {/* Accessibility: Skip Link */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+
+      {/* Cinematic Loading Screen */}
+      <AnimatePresence>
+        {isLoading && <PageLoader onComplete={handleLoaderComplete} />}
+      </AnimatePresence>
+
       {/* Background Neural Grid and Noise overlays */}
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none z-0" />
       <div className="absolute inset-0 noise-overlay opacity-[0.012] pointer-events-none z-0" />
@@ -132,22 +237,6 @@ export default function App() {
       {/* Custom Cursor Blur Glow Trail */}
       <CursorFollower />
 
-      {/* Initial Loader View */}
-      <div className="page-loader" id="pageLoader" role="status" aria-live="polite">
-        <div className="loader-shell">
-          <div className="loader-mark-wrap" aria-hidden="true">
-            <span className="loader-ring"></span>
-            <img
-              className="loader-mark"
-              src="images/chromologlogo.webp"
-              alt="Chromolog Technologies"
-              width="800"
-              height="800"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Sticky Header Navigation */}
       <Header
         activePage={activePage}
@@ -156,33 +245,53 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="relative z-10 pt-20">
-        {activePage === "home" && (
-          <>
-            <Hero navigateToSection={navigateToSection} />
-            <About navigateToSection={navigateToSection} />
-            <IndustryExplorer />
-            <Projects />
-            <Services />
-            <TechOrbit />
-            <AIShowcase />
-            <ProductMockup navigateToSection={navigateToSection} />
-            <Process />
-            <Testimonials />
-            <Contact />
-          </>
-        )}
+      <ErrorBoundary>
+        <main id="main-content" className="relative z-10 pt-20">
+          {resolvedPage === "home" && (
+            <>
+              <Hero navigateToSection={navigateToSection} />
+              <About navigateToSection={navigateToSection} />
+              <Suspense fallback={<SectionSkeleton />}>
+                <IndustryExplorer />
+              </Suspense>
+              <Projects />
+              <Services />
+              <Suspense fallback={<SectionSkeleton />}>
+                <TechOrbit />
+              </Suspense>
+              <AIShowcase />
+              <ProductMockup navigateToSection={navigateToSection} />
+              <Process />
+              <Testimonials />
+              <Contact />
+              <Suspense fallback={<SectionSkeleton />}>
+                <Recommendations setActivePage={setActivePage} />
+              </Suspense>
+            </>
+          )}
 
-        {activePage === "privacy" && <Privacy />}
-        {activePage === "terms" && <Terms />}
-        {activePage === "blog" && <Blog />}
-      </main>
+          {resolvedPage === "privacy" && <Privacy />}
+          {resolvedPage === "terms" && <Terms />}
+          {resolvedPage === "blog" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <Blog />
+            </Suspense>
+          )}
+          {resolvedPage === "404" && <NotFound setActivePage={setActivePage} />}
+        </main>
+      </ErrorBoundary>
 
       {/* Enterprise Footer */}
       <Footer
         setActivePage={setActivePage}
         navigateToSection={navigateToSection}
       />
+
+      {/* AI Chat Assistant */}
+      <AIChat setActivePage={setActivePage} />
+
+      {/* Cookie Consent Banner */}
+      <CookieConsent />
 
       {/* WhatsApp Floating FAB */}
       <a

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Home, ArrowLeft, MessageSquare, FolderKanban } from "lucide-react";
+import { Home, MessageSquare, FolderKanban } from "lucide-react";
 
 export default function NotFound({ setActivePage }) {
   const goHome = () => {

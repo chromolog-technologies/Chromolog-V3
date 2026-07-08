@@ -66,6 +66,43 @@ export function trackNewsletterSignup(source = "blog") {
   trackEvent("Lead", "newsletter_signup", source);
 }
 
+// ─── Conversion Tracking (Phase 4) ─────────────────────────────────
+
+/** Track phone number click */
+export function trackPhoneClick(number = "") {
+  trackEvent("Communication", "phone_click", number);
+}
+
+/** Track email link click */
+export function trackEmailClick(email = "") {
+  trackEvent("Communication", "email_click", email);
+}
+
+/** Track demo request submission */
+export function trackDemoRequest(source = "contact_form") {
+  trackEvent("Conversion", "demo_request", source);
+}
+
+/** Track file/resource download */
+export function trackDownload(fileName = "") {
+  trackEvent("Engagement", "download", fileName);
+}
+
+/** Track search query in AI assistant */
+export function trackSearchQuery(query = "") {
+  trackEvent("Search", "ai_search", query.slice(0, 80));
+}
+
+/** Track recommendation interaction */
+export function trackRecommendation(type = "", item = "") {
+  trackEvent("Recommendation", "click", `${type}:${item}`);
+}
+
+/** Track section visibility (for recommendation engine) */
+export function trackSectionView(sectionId = "") {
+  trackEvent("Engagement", "section_view", sectionId);
+}
+
 /** Consent toggle — enable/disable analytics based on cookie consent */
 export function setAnalyticsConsent(granted = true) {
   if (!isGA()) return;
