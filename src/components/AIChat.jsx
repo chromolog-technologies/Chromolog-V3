@@ -1,7 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, X, Send, Sparkles, ArrowRight, RotateCcw } from "lucide-react";
-import { trackChatOpen, trackChatMessage } from "../utils/analytics";
+import { trackChatOpen, trackChatMessage, trackSearchQuery } from "../utils/analytics";
+import {
+  detectIndustry,
+  getRecommendations,
+  trackCTAInterest,
+  trackSearchHistory,
+  trackServiceInterest,
+} from "../utils/visitor";
+
+const CHAT_HISTORY_KEY = "chromolog_ai_chat_history";
 
 // ─────────────────────────────────────────────
 // Knowledge Base — pattern-matched responses
@@ -69,14 +78,54 @@ const KB = [
   },
 ];
 
+const RICH_CARD_MAP = {
+  healthcare: [
+    { title: "Healthcare App Architecture", text: "Patient queues, staff workflows, offline-first Flutter clients, secure records, and analytics." },
+    { title: "Recommended Next Step", text: "Map patient flow, integrations, and deployment constraints in a scoping call." },
+  ],
+  education: [
+    { title: "Education ERP Blueprint", text: "Admissions, placements, fees, faculty dashboards, AI resume scoring, and parent/student portals." },
+    { title: "Featured Product", text: "AlphaGrew Smart Campus ERP for high-volume campus operations." },
+  ],
+  retail: [
+    { title: "Retail POS Stack", text: "Fast billing, inventory sync, barcode workflows, GST-ready reports, and branch dashboards." },
+    { title: "AI Opportunity", text: "Demand forecasting, reorder suggestions, and sales anomaly detection." },
+  ],
+  enterprise: [
+    { title: "Enterprise Automation", text: "RBAC, approval flows, HRMS, payroll, CRM, Redis queues, and analytics dashboards." },
+    { title: "AI Integration", text: "Document intelligence, copilots, and workflow agents connected to your operational data." },
+  ],
+  ai: [
+    { title: "AI Integration Options", text: "OpenAI, Gemini, Claude, RAG search, agentic workflows, OCR, and predictive scoring." },
+    { title: "Architecture Pattern", text: "Provider registry, guarded prompts, vector-ready knowledge base, Redis cache, and audit logs." },
+  ],
+};
+
+function classifyQuery(query) {
+  const q = query.toLowerCase();
+  if (/(health|hospital|clinic|patient|medical)/.test(q)) return "healthcare";
+  if (/(educ|college|campus|student|placement|school|university)/.test(q)) return "education";
+  if (/(retail|pos|inventory|billing|store)/.test(q)) return "retail";
+  if (/(enterprise|hr|hrms|payroll|workflow|crm)/.test(q)) return "enterprise";
+  if (/(ai|agent|automation|llm|rag|openai|gemini|claude|ocr)/.test(q)) return "ai";
+  return detectIndustry() || "ai";
+}
+
 function getResponse(query) {
   const q = query.toLowerCase().trim();
   for (const entry of KB) {
     if (entry.patterns.some((p) => q.includes(p))) {
-      return entry.response;
+      return {
+        text: entry.response,
+        cards: RICH_CARD_MAP[classifyQuery(query)] || [],
+      };
     }
   }
-  return `I don't have a specific answer for that yet, but our team would be happy to help!\n\n📧 **Email:** chromologtech@gmail.com\n📱 **WhatsApp:** +91 94002 30723\n\nOr you can scroll to the **Contact** section — we typically respond within 24 hours.`;
+  const recs = getRecommendations();
+  return {
+    text: `I can help scope that. Based on your current interests, the best next path is likely **${recs[0]?.title || "AI-powered software architecture"}**.\n\nA practical discovery flow would cover:\n\n→ Business workflow and users\n→ Required integrations\n→ AI capabilities and data sources\n→ Timeline, risk, and launch plan\n\nShare your industry and goal, and I can suggest a more precise architecture.`,
+    cards: recs.map((rec) => ({ title: rec.title, text: rec.reason })),
+  };
 }
 
 // ─────────────────────────────────────────────
@@ -121,16 +170,25 @@ const SUGGESTIONS = [
 // ─────────────────────────────────────────────
 export default function AIChat({ setActivePage }) {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      text: "Hello! 👋 I'm the **Chromolog AI Assistant**.\n\nAsk me anything about our services, products, pricing, or tech stack — I'm here to help.",
-      id: Date.now(),
-    },
-  ]);
+  const [messages, setMessages] = useState(() => {
+    try {
+      const stored = localStorage.getItem(CHAT_HISTORY_KEY);
+      if (stored) return JSON.parse(stored);
+    } catch {
+      // Ignore corrupted chat history.
+    }
+    return [
+      {
+        role: "assistant",
+        text: "Hello! I'm the **Chromolog AI Assistant**.\n\nAsk me anything about our services, products, pricing, architecture, or tech stack. I can also recommend the right solution path.",
+        id: Date.now(),
+      },
+    ];
+  });
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [streamingText, setStreamingText] = useState("");
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -142,7 +200,15 @@ export default function AIChat({ setActivePage }) {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+  }, [messages, isTyping, streamingText]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(messages.slice(-16)));
+    } catch {
+      // Storage may be unavailable in private browsing.
+    }
+  }, [messages]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -156,13 +222,32 @@ export default function AIChat({ setActivePage }) {
     setInput("");
     setShowSuggestions(false);
     setIsTyping(true);
+    setStreamingText("");
     trackChatMessage(query);
+    trackSearchQuery(query);
+    trackSearchHistory(query);
+    if (/ai|automation|agent|llm|rag|ocr/i.test(query)) trackServiceInterest("AI & Automation");
+    if (/web|saas|portal|dashboard/i.test(query)) trackServiceInterest("Web Application Development");
+    if (/mobile|flutter|ios|android/i.test(query)) trackServiceInterest("Mobile App Development");
 
     setTimeout(() => {
       const reply = getResponse(query);
-      setIsTyping(false);
-      setMessages((prev) => [...prev, { role: "assistant", text: reply, id: Date.now() }]);
-    }, 900 + Math.random() * 500);
+      const chunks = reply.text.match(/.{1,42}(\s|$)/g) || [reply.text];
+      let index = 0;
+      const streamId = window.setInterval(() => {
+        index += 1;
+        setStreamingText(chunks.slice(0, index).join(""));
+        if (index >= chunks.length) {
+          window.clearInterval(streamId);
+          setIsTyping(false);
+          setStreamingText("");
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", text: reply.text, cards: reply.cards, id: Date.now() },
+          ]);
+        }
+      }, 35);
+    }, 450);
   };
 
   const handleReset = () => {
@@ -175,6 +260,8 @@ export default function AIChat({ setActivePage }) {
     ]);
     setShowSuggestions(true);
     setInput("");
+    setStreamingText("");
+    localStorage.removeItem(CHAT_HISTORY_KEY);
   };
 
   return (
@@ -189,7 +276,7 @@ export default function AIChat({ setActivePage }) {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 2 }}
             onClick={handleOpen}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent shadow-2xl shadow-primary/30 flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-transform"
+            className="fixed bottom-24 right-6 z-[120] w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent shadow-2xl shadow-primary/30 flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-transform"
             aria-label="Open AI Assistant"
           >
             <MessageSquare className="w-6 h-6" />
@@ -208,8 +295,8 @@ export default function AIChat({ setActivePage }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.9 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-white/[0.08]"
-            style={{ height: "min(580px, calc(100vh - 5rem))" }}
+            className="fixed bottom-24 right-6 z-[120] w-[380px] max-w-[calc(100vw-2rem)] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-white/[0.08]"
+            style={{ height: "min(580px, calc(100vh - 9rem))" }}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#0A0F1D] to-[#080C18] border-b border-white/[0.06] shrink-0">
@@ -267,7 +354,27 @@ export default function AIChat({ setActivePage }) {
                     }`}
                   >
                     {msg.role === "assistant" ? (
-                      <MarkdownText text={msg.text} />
+                      <>
+                        <MarkdownText text={msg.text} />
+                        {msg.cards?.length > 0 && (
+                          <div className="grid gap-2 mt-3">
+                            {msg.cards.map((card) => (
+                              <button
+                                key={card.title}
+                                type="button"
+                                onClick={() => {
+                                  trackCTAInterest(`AI card: ${card.title}`);
+                                  setInput(card.title);
+                                }}
+                                className="text-left rounded-xl border border-accent/10 bg-accent/5 hover:bg-accent/10 px-3 py-2 transition-colors"
+                              >
+                                <span className="block text-xs font-heading font-bold text-white">{card.title}</span>
+                                <span className="block text-[11px] leading-relaxed text-muted-text mt-1">{card.text}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <p className="text-sm font-body">{msg.text}</p>
                     )}
@@ -285,14 +392,20 @@ export default function AIChat({ setActivePage }) {
                   <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0 mr-2.5 mt-0.5">
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl rounded-tl-sm px-5 py-4 flex gap-1.5 items-center">
-                    {[0, 1, 2].map((i) => (
-                      <span
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce"
-                        style={{ animationDelay: `${i * 0.15}s` }}
-                      />
-                    ))}
+                  <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl rounded-tl-sm px-5 py-4 min-w-[82px]">
+                    {streamingText ? (
+                      <MarkdownText text={streamingText} />
+                    ) : (
+                      <div className="flex gap-1.5 items-center">
+                        {[0, 1, 2].map((i) => (
+                          <span
+                            key={i}
+                            className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce"
+                            style={{ animationDelay: `${i * 0.15}s` }}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}

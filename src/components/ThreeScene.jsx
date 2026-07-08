@@ -10,6 +10,8 @@ export default function ThreeScene() {
     const container = containerRef.current;
     const width = container.clientWidth || 500;
     const height = container.clientHeight || 500;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isSmallViewport = window.innerWidth < 768;
 
     // 1. Scene setup
     const scene = new THREE.Scene();
@@ -20,9 +22,14 @@ export default function ThreeScene() {
     camera.position.z = 8;
 
     // 3. Renderer setup
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: !isSmallViewport,
+      powerPreference: "high-performance",
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isSmallViewport ? 1.35 : 1.75));
     renderer.setSize(width, height);
+    renderer.domElement.style.pointerEvents = "none";
     container.appendChild(renderer.domElement);
 
     // Helper to generate a glowing dot texture
@@ -49,7 +56,7 @@ export default function ThreeScene() {
     const particleTexture = createCircleTexture();
 
     // 4. Create particle network sphere
-    const particleCount = 120;
+    const particleCount = isSmallViewport ? 72 : 120;
     const sphereRadius = 3.2;
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
@@ -112,7 +119,7 @@ export default function ThreeScene() {
     scene.add(pointCloud);
 
     // 5. Connection lines segments setup
-    const maxConnections = particleCount * 4;
+    const maxConnections = particleCount * (isSmallViewport ? 3 : 4);
     const linePositions = new Float32Array(maxConnections * 3 * 2);
     const lineColors = new Float32Array(maxConnections * 3 * 2);
 
@@ -164,20 +171,20 @@ export default function ThreeScene() {
     container.addEventListener("mouseleave", handleMouseLeave);
 
     // 8. Animation & Render loop
-    let clock = new THREE.Clock();
+    const animationStart = performance.now();
     let animId;
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
 
-      const elapsedTime = clock.getElapsedTime();
+      const elapsedTime = (performance.now() - animationStart) / 1000;
       const positionsAttr = pointCloud.geometry.attributes.position;
       const linesPositionsAttr = linesMesh.geometry.attributes.position;
       const linesColorsAttr = linesMesh.geometry.attributes.color;
 
       // Rotate sphere group slowly
-      pointCloud.rotation.y = elapsedTime * 0.08;
-      pointCloud.rotation.x = elapsedTime * 0.04;
+      pointCloud.rotation.y = prefersReducedMotion ? 0.2 : elapsedTime * 0.08;
+      pointCloud.rotation.x = prefersReducedMotion ? 0.1 : elapsedTime * 0.04;
       linesMesh.rotation.y = pointCloud.rotation.y;
       linesMesh.rotation.x = pointCloud.rotation.x;
 
@@ -185,8 +192,8 @@ export default function ThreeScene() {
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
-      camera.position.x = mouse.x * 1.5;
-      camera.position.y = -mouse.y * 1.5;
+      camera.position.x = prefersReducedMotion ? 0 : mouse.x * 1.5;
+      camera.position.y = prefersReducedMotion ? 0 : -mouse.y * 1.5;
       camera.lookAt(0, 0, 0);
 
       // Oscillate particles organically on their sphere seats
@@ -195,7 +202,9 @@ export default function ThreeScene() {
         const original = data.originalPos;
 
         // Spherical offset oscillation
-        const offset = Math.sin(elapsedTime * data.oscillationSpeed + data.phase) * data.oscillationRange;
+        const offset = prefersReducedMotion
+          ? 0
+          : Math.sin(elapsedTime * data.oscillationSpeed + data.phase) * data.oscillationRange;
         
         // Push particle coordinate outward / inward along normal vector
         const normal = original.clone().normalize();
@@ -304,7 +313,7 @@ export default function ThreeScene() {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full min-h-[350px] md:min-h-[450px] relative cursor-pointer"
+      className="w-full h-full min-h-[350px] md:min-h-[450px] relative pointer-events-none"
       aria-hidden="true"
     />
   );

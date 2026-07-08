@@ -3,12 +3,8 @@ import { motion } from "framer-motion";
 
 export default function PageLoader({ onComplete }) {
   const canvasRef = useRef(null);
-  const animDone = useRef(false);
 
   useEffect(() => {
-    if (animDone.current) return;
-    animDone.current = true;
-
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -108,7 +104,7 @@ export default function PageLoader({ onComplete }) {
       className="fixed inset-0 z-[9999] bg-[#050816] flex items-center justify-center overflow-hidden"
     >
       {/* Particle canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
 
       {/* Center logo area */}
       <div className="relative z-10 flex flex-col items-center gap-4">

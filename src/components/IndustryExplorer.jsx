@@ -4,6 +4,8 @@ import { Activity, GraduationCap, ShoppingBag, Utensils, Truck, Building, ArrowR
 import Badge from "./ui/Badge";
 import Card from "./ui/Card";
 import Button from "./ui/Button";
+import { trackCTA } from "../utils/analytics";
+import { trackCTAInterest, trackIndustryInterest, trackTechClick } from "../utils/visitor";
 
 const industries = [
   {
@@ -89,6 +91,12 @@ const industries = [
 export default function IndustryExplorer() {
   const [activeInd, setActiveInd] = useState("healthcare");
   const selectedInd = industries.find((ind) => ind.id === activeInd);
+  const SelectedIcon = selectedInd.icon;
+
+  const handleIndustrySelect = (industryId) => {
+    setActiveInd(industryId);
+    trackIndustryInterest(industryId);
+  };
 
   return (
     <section className="relative bg-bg-dark py-24 border-t border-white/[0.05]" id="industries">
@@ -120,7 +128,8 @@ export default function IndustryExplorer() {
               return (
                 <button
                   key={ind.id}
-                  onClick={() => setActiveInd(ind.id)}
+                  onClick={() => handleIndustrySelect(ind.id)}
+                  onFocus={() => trackIndustryInterest(ind.id)}
                   className={`flex items-center justify-between p-4.5 rounded-2xl border text-left transition-all duration-300 ${
                     isActive
                       ? "bg-white/[0.04] border-primary/45 shadow-xl shadow-primary/5 text-white"
@@ -160,7 +169,7 @@ export default function IndustryExplorer() {
                     {/* Header */}
                     <div>
                       <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.04] border border-white/[0.08] rounded-xl mb-3">
-                        <selectedInd.icon className="w-4 h-4" style={{ color: selectedInd.color }} />
+                        <SelectedIcon className="w-4 h-4" style={{ color: selectedInd.color }} />
                         <span className="text-xs font-bold font-heading text-white">{selectedInd.name} Solutions</span>
                       </div>
                       <h3 className="text-xl md:text-2xl font-heading font-extrabold text-white leading-tight">
@@ -242,7 +251,14 @@ export default function IndustryExplorer() {
                         <span className="text-[9px] font-bold text-muted-text uppercase tracking-widest font-heading">Target Stack</span>
                         <div className="flex flex-wrap gap-1.5">
                           {selectedInd.tech.map((t, idx) => (
-                            <span key={idx} className="text-[10px] font-semibold text-accent border border-white/[0.04] bg-white/[0.02] px-2 py-0.5 rounded font-heading">{t}</span>
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => trackTechClick(t)}
+                              className="text-[10px] font-semibold text-accent border border-white/[0.04] bg-white/[0.02] hover:bg-accent/10 hover:border-accent/20 px-2 py-0.5 rounded font-heading transition-colors"
+                            >
+                              {t}
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -255,6 +271,9 @@ export default function IndustryExplorer() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
+                        trackCTA("industry_architect_contact", selectedInd.name);
+                        trackCTAInterest(`Industry contact: ${selectedInd.name}`);
+                        trackIndustryInterest(selectedInd.id);
                         const contactSection = document.getElementById("contact");
                         if (contactSection) {
                           contactSection.scrollIntoView({ behavior: "smooth" });

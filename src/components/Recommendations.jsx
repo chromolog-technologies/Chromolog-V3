@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, X, ArrowRight, Lightbulb } from "lucide-react";
-import { getRecommendations, getVisitorProfile, recordVisit } from "../utils/visitor";
+import { getRecommendations, getVisitorProfile, recordVisit, trackCTAInterest } from "../utils/visitor";
 import { trackRecommendation } from "../utils/analytics";
 
 /**
@@ -24,22 +24,29 @@ export default function Recommendations({ setActivePage }) {
       return;
     }
 
-    // Wait 30s or until user has scrolled significantly
-    const timer = setTimeout(() => {
+    const refreshRecommendations = (force = false) => {
       const profile = getVisitorProfile();
       const sectionCount = Object.keys(profile.viewedSections).length;
 
       // Only show if visitor has engaged (2+ sections viewed or 2+ visits)
-      if (sectionCount >= 2 || profile.visitCount >= 2) {
+      if (force || sectionCount >= 2 || profile.visitCount >= 2) {
         const recs = getRecommendations();
         if (recs.length > 0) {
           setRecommendations(recs);
           setVisible(true);
         }
       }
-    }, 30000);
+    };
 
-    return () => clearTimeout(timer);
+    // Wait briefly for intent signals, then keep updating when the profile changes.
+    const timer = setTimeout(() => refreshRecommendations(false), 12000);
+    const handleProfileChange = () => refreshRecommendations(false);
+    window.addEventListener("chromolog:visitor-profile", handleProfileChange);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("chromolog:visitor-profile", handleProfileChange);
+    };
   }, []);
 
   const handleDismiss = () => {
@@ -50,6 +57,7 @@ export default function Recommendations({ setActivePage }) {
 
   const handleClick = (rec) => {
     trackRecommendation(rec.type, rec.title);
+    trackCTAInterest(`Recommendation: ${rec.title}`);
 
     if (rec.type === "cta") {
       // Scroll to contact

@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import { ArrowRight, ArrowLeft, Terminal } from "lucide-react";
 import Badge from "./ui/Badge";
+import { trackCTA } from "../utils/analytics";
+import { trackCTAInterest, trackServiceInterest } from "../utils/visitor";
 
 function ServiceCard({ title, desc, icon, c, cb, list, backContent }) {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -26,6 +28,8 @@ function ServiceCard({ title, desc, icon, c, cb, list, backContent }) {
         setHovered(false);
         setCoords({ x: 0, y: 0 });
       }}
+      onFocus={() => trackServiceInterest(title)}
+      onClick={() => trackServiceInterest(title)}
       className="relative h-[390px] rounded-2xl border border-white/[0.06] bg-white/[0.01] hover:border-white/[0.15] transition-colors duration-500 overflow-hidden cursor-pointer group [perspective:1000px]"
     >
       {/* Spotlight mouse follow glow overlay */}
@@ -79,6 +83,9 @@ function ServiceCard({ title, desc, icon, c, cb, list, backContent }) {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
+              trackServiceInterest(title);
+              trackCTA("technical_spec", title);
+              trackCTAInterest(`Technical spec: ${title}`);
               setIsFlipped(true);
             }}
             className="flex items-center gap-1.5 text-[11px] font-heading font-bold text-accent hover:text-white transition-colors uppercase tracking-wider select-none"

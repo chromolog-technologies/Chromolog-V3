@@ -1,4 +1,11 @@
 import { useState } from 'react';
+import {
+  trackDemoRequest,
+  trackEmailClick,
+  trackFormSubmit,
+  trackPhoneClick,
+} from '../utils/analytics';
+import { trackCTAInterest, trackServiceInterest } from '../utils/visitor';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -54,6 +61,9 @@ export default function Contact() {
       });
 
       if (response.ok) {
+        trackFormSubmit('contact_form');
+        trackDemoRequest(formData.service || 'contact_form');
+        trackCTAInterest(`Demo request: ${formData.service || 'unspecified'}`);
         setStatus({ type: 'success', msg: 'Thank you! Your request for a demo has been sent.' });
         setFormData({
           name: '',
@@ -129,7 +139,10 @@ export default function Contact() {
                       id="service" 
                       name="service" 
                       value={formData.service}
-                      onChange={handleInputChange}
+                      onChange={(e) => {
+                        handleInputChange(e);
+                        trackServiceInterest(e.target.value);
+                      }}
                       required
                     >
                       <option value="" disabled>Select a service</option>
@@ -189,14 +202,14 @@ export default function Contact() {
                 <i className="ri-mail-open-line" aria-hidden="true"></i>
                 <div>
                   <strong>Email</strong>
-                  <div><a href="mailto:info@chromologtechnologies.com">info@chromologtechnologies.com</a></div>
+                  <div><a href="mailto:info@chromologtechnologies.com" onClick={() => trackEmailClick('info@chromologtechnologies.com')}>info@chromologtechnologies.com</a></div>
                 </div>
               </div>
               <div className="contact-item">
                 <i className="ri-phone-line" aria-hidden="true"></i>
                 <div>
                   <strong>Phone</strong>
-                  <div><a href="tel:+919400230723">+91 9400230723</a></div>
+                  <div><a href="tel:+919400230723" onClick={() => trackPhoneClick('+919400230723')}>+91 9400230723</a></div>
                 </div>
               </div>
               <div className="contact-item">

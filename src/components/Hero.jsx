@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { lazy, Suspense, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Brain, Cpu, Cloud, BarChart3, Shield } from "lucide-react";
-import ThreeScene from "./ThreeScene";
 import Button from "./ui/Button";
 import Card from "./ui/Card";
 import Badge from "./ui/Badge";
+import { trackCTA } from "../utils/analytics";
+import { detectIndustry, trackCTAInterest, trackTechClick } from "../utils/visitor";
+
+const ThreeScene = lazy(() => import("./ThreeScene"));
 
 const cyclingWords = [
   "AI Software",
@@ -27,10 +30,40 @@ const technologies = [
   { name: "PostgreSQL", icon: "ri-database-fill", color: "#336791" },
 ];
 
+const personalization = {
+  healthcare: {
+    badge: "Healthcare AI Systems",
+    headline: "Healthcare Workflows",
+    copy: "For clinical teams, Chromolog designs secure patient queues, hospital dashboards, biometric staff workflows, and offline-first healthcare apps.",
+  },
+  education: {
+    badge: "Smart Campus ERP",
+    headline: "Education Platforms",
+    copy: "For schools and universities, Chromolog builds admissions, placements, fee workflows, AI resume scoring, and multi-persona campus dashboards.",
+  },
+  retail: {
+    badge: "Retail POS Intelligence",
+    headline: "Retail Operations",
+    copy: "For retail teams, Chromolog engineers POS, inventory, billing, branch stock sync, and AI-ready sales analytics.",
+  },
+  hospitality: {
+    badge: "Hospitality Automation",
+    headline: "Dining Experiences",
+    copy: "For restaurants and hospitality teams, Chromolog connects QR ordering, kitchen displays, billing, inventory, and real-time service flows.",
+  },
+  enterprise: {
+    badge: "Enterprise AI Automation",
+    headline: "Enterprise Workflows",
+    copy: "For growing organizations, Chromolog builds HRMS, CRM, approval flows, dashboards, document intelligence, and AI automation pipelines.",
+  },
+};
+
 export default function Hero({ navigateToSection }) {
   const [wordIndex, setWordIndex] = useState(0);
   const heroRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [industry, setIndustry] = useState(() => detectIndustry());
+  const activePersonalization = personalization[industry];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -38,6 +71,12 @@ export default function Hero({ navigateToSection }) {
     }, 2800);
 
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleProfileChange = () => setIndustry(detectIndustry());
+    window.addEventListener("chromolog:visitor-profile", handleProfileChange);
+    return () => window.removeEventListener("chromolog:visitor-profile", handleProfileChange);
   }, []);
 
   useEffect(() => {
@@ -55,11 +94,15 @@ export default function Hero({ navigateToSection }) {
 
   const handleStartProject = (e) => {
     e.preventDefault();
+    trackCTA("hero_start_project", activePersonalization?.badge || "default");
+    trackCTAInterest(`Hero CTA: ${activePersonalization?.badge || "default"}`);
     navigateToSection("contact");
   };
 
   const handleSeeWork = (e) => {
     e.preventDefault();
+    trackCTA("hero_explore_solutions", activePersonalization?.badge || "default");
+    trackCTAInterest(`Hero explore: ${activePersonalization?.badge || "default"}`);
     navigateToSection("projects");
   };
 
@@ -83,7 +126,7 @@ export default function Hero({ navigateToSection }) {
               className="inline-flex"
             >
               <Badge variant="ai" className="px-4 py-1.5 text-xs font-semibold">
-                AI-First Technology Partner
+                {activePersonalization?.badge || "AI-First Technology Partner"}
               </Badge>
             </motion.div>
 
@@ -105,7 +148,7 @@ export default function Hero({ navigateToSection }) {
                     transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                     className="absolute left-0 top-0 gradient-text-primary block"
                   >
-                    {cyclingWords[wordIndex]}
+                {activePersonalization?.headline || cyclingWords[wordIndex]}
                   </motion.span>
                 </AnimatePresence>
               </div>
@@ -118,7 +161,7 @@ export default function Hero({ navigateToSection }) {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-base sm:text-lg text-muted-text max-w-xl leading-relaxed font-body"
             >
-              Chromolog Technologies builds intelligent, production-ready custom software. We integrate AI cognitive workflows, clean cloud infrastructures, and high-fidelity interfaces engineered to scale your operations.
+              {activePersonalization?.copy || "Chromolog Technologies builds intelligent, production-ready custom software. We integrate AI cognitive workflows, clean cloud infrastructures, and high-fidelity interfaces engineered to scale your operations."}
             </motion.p>
 
             {/* Hero Checkmarks */}
@@ -174,7 +217,9 @@ export default function Hero({ navigateToSection }) {
             
             {/* Interactive 3D Canvas */}
             <div className="w-full h-full absolute inset-0 z-10">
-              <ThreeScene />
+              <Suspense fallback={<div className="w-full h-full rounded-full bg-accent/5 blur-3xl" aria-hidden="true" />}>
+                <ThreeScene />
+              </Suspense>
             </div>
 
             {/* Floating Glass Card 1: AI Assistant */}
@@ -288,13 +333,15 @@ export default function Hero({ navigateToSection }) {
             <div className="flex gap-8 items-center w-max animate-[marquee_35s_linear_infinite] hover:[animation-play-state:paused]">
               {/* Double array rendering for infinite marquee flow */}
               {[...technologies, ...technologies, ...technologies].map((tech, idx) => (
-                <div
+                <button
                   key={idx}
+                  type="button"
+                  onClick={() => trackTechClick(tech.name)}
                   className="flex items-center gap-2 px-4 py-2 border border-white/[0.05] rounded-xl bg-white/[0.02] select-none text-muted-text hover:text-white-text hover:border-white/10 hover:bg-white/[0.04] transition-all"
                 >
                   <i className={`${tech.icon} text-lg`} style={{ color: tech.color }} />
                   <span className="text-xs font-semibold font-heading tracking-wide">{tech.name}</span>
-                </div>
+                </button>
               ))}
             </div>
           </div>

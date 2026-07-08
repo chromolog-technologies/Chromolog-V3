@@ -27,7 +27,8 @@ import NotFound from "./pages/NotFound";
 // Analytics hooks
 import useScrollDepth from "./hooks/useScrollDepth";
 import useTimeOnPage from "./hooks/useTimeOnPage";
-import { trackPageView } from "./utils/analytics";
+import useVisitorIntelligence from "./hooks/useVisitorIntelligence";
+import { trackPageView, trackWhatsApp } from "./utils/analytics";
 
 // Lazy-loaded heavy components
 const TechOrbit = lazy(() => import("./components/TechOrbit"));
@@ -109,6 +110,7 @@ export default function App() {
   // Analytics hooks
   useScrollDepth();
   useTimeOnPage();
+  useVisitorIntelligence(activePage);
 
   // Track SPA page views
   useEffect(() => {
@@ -141,9 +143,10 @@ export default function App() {
     lenis.on("scroll", ScrollTrigger.update);
 
     // Bind Lenis animation frame loop to GSAP ticker
-    gsap.ticker.add((time) => {
+    const lenisTicker = (time) => {
       lenis.raf(time * 1000);
-    });
+    };
+    gsap.ticker.add(lenisTicker);
 
     gsap.ticker.lagSmoothing(0);
 
@@ -186,7 +189,7 @@ export default function App() {
 
     return () => {
       lenis.destroy();
-      gsap.ticker.remove(lenis.raf);
+      gsap.ticker.remove(lenisTicker);
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, [activePage]);
@@ -299,6 +302,7 @@ export default function App() {
         href="https://wa.me/+919400230723"
         target="_blank"
         rel="noopener noreferrer"
+        onClick={trackWhatsApp}
         aria-label="Chat with us on WhatsApp"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">

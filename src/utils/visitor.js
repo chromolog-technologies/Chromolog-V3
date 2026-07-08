@@ -26,12 +26,16 @@ function getProfile() {
     searchHistory: [],     // last 10 AI chat queries
     pageViews: {},         // { "/": 3, "/blog": 1 }
     timeSpent: {},         // { "hero": 12, "services": 8 } (seconds approximation)
+    clickedCTAs: [],       // last 20 high-intent actions
   };
 }
 
 function saveProfile(profile) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("chromolog:visitor-profile", { detail: profile }));
+    }
   } catch {
     // Storage full or unavailable
   }
@@ -99,6 +103,22 @@ export function trackSearchHistory(query) {
   saveProfile(profile);
 }
 
+/** Track high-intent CTA interactions */
+export function trackCTAInterest(label) {
+  const profile = getProfile();
+  profile.clickedCTAs.push({ label: label.slice(0, 80), at: Date.now() });
+  if (profile.clickedCTAs.length > 20) profile.clickedCTAs.shift();
+  saveProfile(profile);
+}
+
+/** Add dwell time for a visible section */
+export function updateSectionTime(sectionId, seconds) {
+  if (!sectionId || !Number.isFinite(seconds) || seconds <= 0) return;
+  const profile = getProfile();
+  profile.timeSpent[sectionId] = (profile.timeSpent[sectionId] || 0) + seconds;
+  saveProfile(profile);
+}
+
 // ─── Recommendation Engine ──────────────────────────────────────────
 
 /** Get the full visitor profile */
@@ -116,6 +136,8 @@ export function detectIndustry() {
     ...profile.searchHistory,
     ...Object.keys(profile.viewedSections),
     ...profile.viewedServices,
+    ...profile.clickedTech,
+    ...(profile.clickedCTAs || []).map((cta) => cta.label),
   ]
     .join(" ")
     .toLowerCase();
@@ -186,16 +208,30 @@ export function getRecommendations() {
   // Engagement-based recommendations
   const sectionCounts = Object.entries(profile.viewedSections);
   if (sectionCounts.length > 0) {
-    const topSection = sectionCounts.sort((a, b) => b[1] - a[1])[0][0];
+    const timeEntries = Object.entries(profile.timeSpent || {});
+    const topSection = timeEntries.length > 0
+      ? timeEntries.sort((a, b) => b[1] - a[1])[0][0]
+      : sectionCounts.sort((a, b) => b[1] - a[1])[0][0];
     const sectionRecs = {
+      home: { type: "cta", title: "Get a Free Architecture Consultation", reason: "You explored the company overview" },
+      industries: { type: "cta", title: "Map Your Industry Workflow", reason: "You compared industry solutions" },
       ai: { type: "service", title: "AI & Automation Services", reason: "You showed interest in AI" },
       services: { type: "cta", title: "Request a Free Consultation", reason: "Explore our service options" },
       projects: { type: "cta", title: "View All Case Studies", reason: "See more of our work" },
       product: { type: "product", title: "Request a Product Demo", reason: "See our solutions in action" },
+      contact: { type: "cta", title: "Schedule a Scoping Call", reason: "You reached the contact section" },
     };
     if (sectionRecs[topSection]) {
       recommendations.push(sectionRecs[topSection]);
     }
+  }
+
+  if (profile.clickedTech.includes("OpenAI") || profile.clickedTech.includes("Gemini")) {
+    recommendations.push({
+      type: "service",
+      title: "LLM Integration Architecture",
+      reason: "Based on your AI platform interest",
+    });
   }
 
   // Default fallbacks if no personalization data

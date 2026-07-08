@@ -251,9 +251,9 @@ export default function TechOrbit() {
                           backgroundColor: `${selectedTech.color}08`,
                         }}
                       >
-                        <text style={{ fontFamily: "remixicon" }}>
+                        <span style={{ fontFamily: "remixicon" }}>
                           <i className={selectedTech.icon}></i>
-                        </text>
+                        </span>
                       </div>
                       <div>
                         <div className="flex items-center gap-2">

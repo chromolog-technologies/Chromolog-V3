@@ -4,25 +4,52 @@
  * To enable: uncomment the gtag script in index.html and set your ID.
  */
 
-const isGA = () => typeof window !== "undefined" && typeof window.gtag === "function";
+const isBrowser = () => typeof window !== "undefined";
+const isGA = () => isBrowser() && typeof window.gtag === "function";
+const hasDataLayer = () => isBrowser() && Array.isArray(window.dataLayer);
 
 /** Track a custom event */
 export function trackEvent(category, action, label = "", value = 0) {
-  if (!isGA()) return;
-  window.gtag("event", action, {
+  const payload = {
     event_category: category,
     event_label: label,
     value,
-  });
+  };
+
+  if (hasDataLayer()) {
+    window.dataLayer.push({
+      event: "chromolog_event",
+      chromolog_category: category,
+      chromolog_action: action,
+      chromolog_label: label,
+      chromolog_value: value,
+    });
+  }
+
+  if (isGA()) window.gtag("event", action, payload);
+  if (isBrowser() && typeof window.fbq === "function") window.fbq("trackCustom", action, payload);
+  if (isBrowser() && typeof window.lintrk === "function") window.lintrk("track", { conversion_id: action });
+  if (isBrowser() && typeof window.clarity === "function") window.clarity("event", `${category}_${action}`);
 }
 
 /** Track SPA page view (call on route change) */
 export function trackPageView(pagePath, pageTitle = document.title) {
-  if (!isGA()) return;
-  window.gtag("event", "page_view", {
+  if (hasDataLayer()) {
+    window.dataLayer.push({
+      event: "chromolog_page_view",
+      page_path: pagePath,
+      page_title: pageTitle,
+    });
+  }
+
+  if (isGA()) window.gtag("event", "page_view", {
     page_path: pagePath,
     page_title: pageTitle,
   });
+
+  if (isBrowser() && typeof window.clarity === "function") {
+    window.clarity("set", "page_path", pagePath);
+  }
 }
 
 /** Track CTA button clicks */
