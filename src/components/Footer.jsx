@@ -1,8 +1,27 @@
+// ─── Footer — Column Stagger Reveal + Social Glow ────────────────────────────
+// Columns reveal one by one (120ms apart)
+// Social icons glow + scale on hover
+// Newsletter input: focus glow preserved
+// Bottom bar fades in last
+
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, Award, Shield } from "lucide-react";
 import { Input } from "./ui/Input";
 import Button from "./ui/Button";
 import BrandLogo from "./BrandLogo";
+import { easings } from "../motion/easings";
+
+const prefersReducedMotion =
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const columnVariant = (delay = 0) => ({
+  initial: prefersReducedMotion ? {} : { opacity: 0, y: 28, filter: "blur(5px)" },
+  whileInView: { opacity: 1, y: 0, filter: "blur(0px)" },
+  viewport: { once: true, margin: "-5% 0px" },
+  transition: { duration: 0.65, delay, ease: easings.expo },
+});
 
 export default function Footer({ setActivePage, navigateToSection }) {
   const currentYear = new Date().getFullYear();
@@ -39,6 +58,41 @@ export default function Footer({ setActivePage, navigateToSection }) {
     setEmail("");
   };
 
+  // Social links data
+  const socialLinks = [
+    {
+      href: "https://www.linkedin.com/company/chromolog-technologies/",
+      label: "LinkedIn",
+      icon: (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+          <rect x="2" y="9" width="4" height="12" />
+          <circle cx="4" cy="4" r="2" />
+        </svg>
+      ),
+    },
+    {
+      href: "https://www.instagram.com/chromologtechnologies/",
+      label: "Instagram",
+      icon: (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+        </svg>
+      ),
+    },
+    {
+      href: "https://www.facebook.com/profile.php?id=61560645833859",
+      label: "Facebook",
+      icon: (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <footer className="relative bg-bg-dark border-t border-white/[0.08] overflow-hidden pt-20 pb-10">
       {/* Ambient backgrounds */}
@@ -47,9 +101,12 @@ export default function Footer({ setActivePage, navigateToSection }) {
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-16">
-          
-          {/* Col 1: Brand Info & Socials */}
-          <div className="lg:col-span-4 space-y-6">
+
+          {/* Col 1: Brand — reveals first */}
+          <motion.div
+            {...columnVariant(0)}
+            className="lg:col-span-4 space-y-6"
+          >
             <a
               className="inline-block group"
               href="#home"
@@ -61,91 +118,86 @@ export default function Footer({ setActivePage, navigateToSection }) {
               }}
               aria-label="Chromolog Home"
             >
-              <BrandLogo compact className="h-10 w-auto max-w-[142px]" />
+              <BrandLogo compact className="h-20 w-auto max-w-[280px]" />
             </a>
             <p className="text-muted-text text-sm leading-relaxed">
               We build premium software that transforms businesses — web, mobile, AI, and custom platforms engineered to scale. Architecting the future of software development.
             </p>
-            
+
             {/* Social Buttons */}
             <div className="flex space-x-3">
-              <a
-                className="p-2.5 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.08] hover:border-white/15 transition-all text-muted-text hover:text-white"
-                href="https://www.linkedin.com/company/chromolog-technologies/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                  <rect x="2" y="9" width="4" height="12" />
-                  <circle cx="4" cy="4" r="2" />
-                </svg>
-              </a>
-              <a
-                className="p-2.5 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.08] hover:border-white/15 transition-all text-muted-text hover:text-white"
-                href="https://www.instagram.com/chromologtechnologies/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                </svg>
-              </a>
-              <a
-                className="p-2.5 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.08] hover:border-white/15 transition-all text-muted-text hover:text-white"
-                href="https://www.facebook.com/profile.php?id=61560645833859"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                </svg>
-              </a>
+              {socialLinks.map((social) => (
+                <motion.a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="p-2.5 rounded-xl border border-white/5 bg-white/[0.02] text-muted-text hover:text-white transition-colors duration-300"
+                  whileHover={prefersReducedMotion ? {} : {
+                    scale: 1.12,
+                    boxShadow: "0 0 20px rgba(0, 229, 255, 0.25)",
+                    borderColor: "rgba(0, 229, 255, 0.3)",
+                    color: "#00e5ff",
+                  }}
+                  transition={{ duration: 0.22, ease: easings.snappy }}
+                >
+                  {social.icon}
+                </motion.a>
+              ))}
             </div>
 
             {/* Awards & Certifications */}
             <div className="flex items-center gap-4 pt-2 text-muted-text/60">
               <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider font-heading">
-                <Award className="w-4.5 h-4.5 text-accent" />
+                <Award className="w-4 h-4 text-accent" />
                 <span>Next-Gen AI Award</span>
               </div>
               <div className="w-px h-4 bg-white/10" />
               <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider font-heading">
-                <Shield className="w-4.5 h-4.5 text-success" />
+                <Shield className="w-4 h-4 text-success" />
                 <span>ISO 9001:2015</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Col 2: Navigation Links */}
-          <div className="lg:col-span-2 space-y-4">
+          <motion.div {...columnVariant(0.1)} className="lg:col-span-2 space-y-4">
             <h4 className="text-sm font-heading font-bold text-white uppercase tracking-wider">Company</h4>
             <nav className="flex flex-col space-y-2.5 text-sm" aria-label="Footer Company Links">
-              <a href="#about" onClick={(e) => handleLinkClick(e, "about")} className="text-muted-text hover:text-white transition-colors duration-300">About Us</a>
-              <a href="#projects" onClick={(e) => handleLinkClick(e, "projects")} className="text-muted-text hover:text-white transition-colors duration-300">Our Projects</a>
-              <a href="#services" onClick={(e) => handleLinkClick(e, "services")} className="text-muted-text hover:text-white transition-colors duration-300">Services</a>
-              <a href="#ai" onClick={(e) => handleLinkClick(e, "ai")} className="text-muted-text hover:text-white transition-colors duration-300">AI Capabilities</a>
-              <a href="#product" onClick={(e) => handleLinkClick(e, "product")} className="text-muted-text hover:text-white transition-colors duration-300">SaaS Product</a>
-              <a href="#process" onClick={(e) => handleLinkClick(e, "process")} className="text-muted-text hover:text-white transition-colors duration-300">Our Process</a>
-              <a href="#blog" onClick={(e) => handleLinkClick(e, "blog")} className="text-muted-text hover:text-white transition-colors duration-300">Knowledge Hub</a>
-              <a href="/careers" onClick={(e) => handleLinkClick(e, "careers")} className="text-muted-text hover:text-white transition-colors duration-300">Careers</a>
+              {[
+                { href: "#about", id: "about", label: "About Us" },
+                { href: "#projects", id: "projects", label: "Our Projects" },
+                { href: "#services", id: "services", label: "Services" },
+                { href: "#ai", id: "ai", label: "AI Capabilities" },
+                { href: "#product", id: "product", label: "SaaS Product" },
+                { href: "#process", id: "process", label: "Our Process" },
+                { href: "#blog", id: "blog", label: "Knowledge Hub" },
+                { href: "/careers", id: "careers", label: "Careers" },
+              ].map((link) => (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  onClick={(e) => handleLinkClick(e, link.id)}
+                  className="text-muted-text hover:text-white transition-colors duration-300 hover:translate-x-0.5 inline-block"
+                >
+                  {link.label}
+                </a>
+              ))}
             </nav>
-          </div>
+          </motion.div>
 
-          {/* Col 3: Contact details */}
-          <div className="lg:col-span-3 space-y-4">
+          {/* Col 3: Contact */}
+          <motion.div {...columnVariant(0.18)} className="lg:col-span-3 space-y-4">
             <h4 className="text-sm font-heading font-bold text-white uppercase tracking-wider">Contact Details</h4>
             <div className="space-y-4 text-sm text-muted-text">
               <div className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-white text-xs font-heading font-semibold uppercase tracking-wider">Email</strong>
-                  <a href="mailto:info@chromologtechnologies.com" className="hover:text-white transition-colors">info@chromologtechnologies.com</a>
+                  <a href="mailto:info@chromologtechnologies.com" className="hover:text-white transition-colors">
+                    info@chromologtechnologies.com
+                  </a>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -157,10 +209,10 @@ export default function Footer({ setActivePage, navigateToSection }) {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Col 4: Office Address & Newsletter */}
-          <div className="lg:col-span-3 space-y-6">
+          {/* Col 4: Address + Newsletter */}
+          <motion.div {...columnVariant(0.26)} className="lg:col-span-3 space-y-6">
             <div className="space-y-4">
               <h4 className="text-sm font-heading font-bold text-white uppercase tracking-wider">Office Address</h4>
               <div className="flex items-start gap-3 text-sm text-muted-text">
@@ -175,10 +227,23 @@ export default function Footer({ setActivePage, navigateToSection }) {
             </div>
 
             {/* Newsletter */}
-            <form onSubmit={handleSubscribe} className="space-y-3 pt-2">
+            <motion.form
+              onSubmit={handleSubscribe}
+              className="space-y-3 pt-2"
+              initial={prefersReducedMotion ? {} : { opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.35, ease: easings.expo }}
+            >
               <h4 className="text-xs font-heading font-bold text-white uppercase tracking-wider">Subscribe to Newsletter</h4>
               {subscribed ? (
-                <p className="text-xs text-success font-semibold">Thank you for subscribing!</p>
+                <motion.p
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-xs text-success font-semibold"
+                >
+                  Thank you for subscribing!
+                </motion.p>
               ) : (
                 <div className="flex gap-2">
                   <Input
@@ -189,29 +254,40 @@ export default function Footer({ setActivePage, navigateToSection }) {
                     required
                     className="py-2.5 rounded-xl border border-white/5 hover:border-white/10"
                   />
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="sm"
-                    className="p-3 shrink-0 rounded-xl"
+                  <motion.div
+                    whileHover={prefersReducedMotion ? {} : { scale: 1.06 }}
+                    whileTap={{ scale: 0.94 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    <Send className="w-4 h-4" />
-                  </Button>
+                    <Button type="submit" variant="primary" size="sm" className="p-3 shrink-0 rounded-xl">
+                      <Send className="w-4 h-4" />
+                    </Button>
+                  </motion.div>
                 </div>
               )}
-            </form>
-          </div>
+            </motion.form>
+          </motion.div>
 
         </div>
 
-        {/* Footer Bottom bar */}
-        <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-text font-heading">
+        {/* Footer Bottom Bar */}
+        <motion.div
+          initial={prefersReducedMotion ? {} : { opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.35, ease: easings.decel }}
+          className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-text font-heading"
+        >
           <p>&copy; {currentYear} Chromolog Technologies. All rights reserved.</p>
           <div className="flex space-x-6">
-            <a href="#privacy" onClick={(e) => handleLegalLinkClick(e, "privacy")} className="hover:text-white transition-colors duration-300">Privacy Policy</a>
-            <a href="#terms" onClick={(e) => handleLegalLinkClick(e, "terms")} className="hover:text-white transition-colors duration-300">Terms &amp; Conditions</a>
+            <a href="#privacy" onClick={(e) => handleLegalLinkClick(e, "privacy")} className="hover:text-white transition-colors duration-300">
+              Privacy Policy
+            </a>
+            <a href="#terms" onClick={(e) => handleLegalLinkClick(e, "terms")} className="hover:text-white transition-colors duration-300">
+              Terms &amp; Conditions
+            </a>
           </div>
-        </div>
+        </motion.div>
       </div>
     </footer>
   );

@@ -1,9 +1,20 @@
+// ─── Testimonials — Stagger Reveal + Star Fill + Quote Word Reveal ───────────
+// Success metrics: stagger reveal on scroll
+// Quote: word-group reveal on each slide change
+// Stars: fill one-by-one with 60ms delay
+// Pause on hover: preserved
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, ChevronLeft, ChevronRight, MessageSquare, ShieldCheck, Pause, Play } from "lucide-react";
 import Badge from "./ui/Badge";
 import Card from "./ui/Card";
 import Counter from "./Counter";
+import { easings } from "../motion/easings";
+
+const prefersReducedMotion =
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const testimonialData = [
   {
@@ -51,6 +62,34 @@ const successMetrics = [
   { end: 12, suffix: "", label: "Industries Served" },
 ];
 
+// ── Quote word-group reveal ───────────────────────────────────────────────────
+function QuoteReveal({ text }) {
+  // Split into groups of 3-4 words for a natural reveal rhythm
+  const words = text.split(" ");
+  const groups = [];
+  for (let i = 0; i < words.length; i += 4) {
+    groups.push(words.slice(i, i + 4).join(" "));
+  }
+
+  return (
+    <p className="text-base sm:text-lg text-white font-body italic leading-relaxed">
+      &ldquo;
+      {groups.map((group, i) => (
+        <motion.span
+          key={i}
+          initial={prefersReducedMotion ? {} : { opacity: 0, y: 8, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.45, delay: i * 0.065, ease: easings.smooth }}
+          style={{ display: "inline" }}
+        >
+          {group}{" "}
+        </motion.span>
+      ))}
+      &rdquo;
+    </p>
+  );
+}
+
 export default function Testimonials() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -66,12 +105,19 @@ export default function Testimonials() {
   };
 
   useEffect(() => {
-    if (isPlaying) {
-      startAutoPlay();
-    } else {
-      clearInterval(intervalRef.current);
-    }
+    if (isPlaying) startAutoPlay();
+    else clearInterval(intervalRef.current);
     return () => clearInterval(intervalRef.current);
+  }, [isPlaying]);
+
+  // Pause when tab hidden
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) clearInterval(intervalRef.current);
+      else if (isPlaying) startAutoPlay();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [isPlaying]);
 
   const handleNext = () => {
@@ -95,9 +141,19 @@ export default function Testimonials() {
   const currentTest = testimonialData[currentIdx];
 
   const slideVariants = {
-    enter: (dir) => ({ opacity: 0, x: dir > 0 ? 60 : -60 }),
-    center: { opacity: 1, x: 0 },
-    exit: (dir) => ({ opacity: 0, x: dir > 0 ? -60 : 60 }),
+    enter: (dir) => ({
+      opacity: 0,
+      x: dir > 0 ? 60 : -60,
+      filter: "blur(6px)",
+      scale: 0.97,
+    }),
+    center: { opacity: 1, x: 0, filter: "blur(0px)", scale: 1 },
+    exit: (dir) => ({
+      opacity: 0,
+      x: dir > 0 ? -60 : 60,
+      filter: "blur(6px)",
+      scale: 0.97,
+    }),
   };
 
   return (
@@ -108,7 +164,13 @@ export default function Testimonials() {
       <div className="max-w-6xl mx-auto px-6 md:px-8 relative z-10">
 
         {/* Section Head */}
-        <div className="section-head reveal text-center max-w-2xl mx-auto mb-16">
+        <motion.div
+          initial={prefersReducedMotion ? {} : { opacity: 0, y: 28, filter: "blur(6px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: easings.expo }}
+          className="text-center max-w-2xl mx-auto mb-16"
+        >
           <Badge variant="ai" className="mb-3 px-3 py-1 text-xs">Client Success Stories</Badge>
           <h2 className="text-3xl md:text-4xl font-bold font-heading text-white mt-2">
             Trusted by the teams we build for.
@@ -116,18 +178,19 @@ export default function Testimonials() {
           <p className="text-muted-text text-sm mt-3 font-body">
             Real outcomes from real clients across healthcare, education, and enterprise sectors.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Success Metrics Bar */}
+        {/* Success Metrics — stagger */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
           {successMetrics.map((metric, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={prefersReducedMotion ? {} : { opacity: 0, y: 24, scale: 0.92 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.08, duration: 0.5 }}
-              className="relative bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 text-center group hover:border-primary/30 hover:bg-white/[0.03] transition-all duration-300"
+              transition={{ delay: idx * 0.09, duration: 0.55, ease: easings.spring }}
+              whileHover={prefersReducedMotion ? {} : { y: -4, scale: 1.02 }}
+              className="relative bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 text-center group hover:border-primary/30 hover:bg-white/[0.03] transition-all duration-300 cursor-default"
             >
               <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-accent/40 group-hover:bg-accent transition-colors" />
               <strong className="block text-2xl md:text-3xl font-heading font-extrabold text-white">
@@ -151,7 +214,7 @@ export default function Testimonials() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.42, ease: easings.smooth }}
                 className="w-full"
               >
                 <Card
@@ -168,18 +231,45 @@ export default function Testimonials() {
                   </div>
 
                   <div className="space-y-6 relative z-10 pt-6">
+                    {/* Stars fill one by one */}
                     <div className="flex gap-1">
                       {[...Array(currentTest.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-warning fill-warning" />
+                        <motion.div
+                          key={i}
+                          initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.4 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{
+                            delay: i * 0.06,
+                            duration: 0.3,
+                            ease: easings.spring,
+                          }}
+                        >
+                          <Star className="w-4 h-4 text-warning fill-warning" />
+                        </motion.div>
                       ))}
                     </div>
 
-                    <p className="text-base sm:text-lg text-white font-body italic leading-relaxed">
-                      &ldquo;{currentTest.quote}&rdquo;
-                    </p>
+                    {/* Quote with word-group reveal */}
+                    <AnimatePresence mode="wait">
+                      <motion.div key={currentIdx + "-quote"}>
+                        <QuoteReveal text={currentTest.quote} />
+                      </motion.div>
+                    </AnimatePresence>
 
-                    <div className="flex items-center gap-4 pt-4 border-t border-white/[0.06]">
-                      <div className={`w-12 h-12 rounded-full bg-gradient-to-tr ${currentTest.avatarColor} font-extrabold text-white text-sm grid place-items-center tracking-wide shrink-0`}>
+                    {/* Author — stagger in after quote */}
+                    <motion.div
+                      initial={prefersReducedMotion ? {} : { opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: Math.ceil(currentTest.quote.split(" ").length / 4) * 0.065 + 0.1,
+                        duration: 0.4,
+                        ease: easings.smooth,
+                      }}
+                      className="flex items-center gap-4 pt-4 border-t border-white/[0.06]"
+                    >
+                      <div
+                        className={`w-12 h-12 rounded-full bg-gradient-to-tr ${currentTest.avatarColor} font-extrabold text-white text-sm grid place-items-center tracking-wide shrink-0`}
+                      >
                         {currentTest.avatarInitials}
                       </div>
                       <div>
@@ -193,29 +283,31 @@ export default function Testimonials() {
                           {currentTest.role} &bull; <span className="text-white-text/75">{currentTest.company}</span>
                         </p>
                       </div>
-                    </div>
+                    </motion.div>
                   </div>
                 </Card>
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Controls row */}
+          {/* Controls */}
           <div className="flex justify-center items-center gap-4 mt-8">
-            <button
+            <motion.button
               onClick={handlePrev}
               className="p-3 border border-white/[0.06] rounded-xl bg-white/[0.02] hover:bg-white/[0.08] hover:border-white/15 text-muted-text hover:text-white transition-all select-none"
               aria-label="Previous testimonial"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <ChevronLeft className="w-5 h-5" />
-            </button>
+            </motion.button>
 
             <div className="flex gap-2.5 select-none items-center">
               {testimonialData.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleDot(idx)}
-                  className={`rounded-full transition-all duration-300 ${
+                  className={`rounded-full transition-all duration-350 ${
                     idx === currentIdx
                       ? "bg-accent w-6 h-2.5"
                       : "bg-white/10 w-2.5 h-2.5 hover:bg-white/25"
@@ -225,19 +317,20 @@ export default function Testimonials() {
               ))}
             </div>
 
-            <button
+            <motion.button
               onClick={handleNext}
               className="p-3 border border-white/[0.06] rounded-xl bg-white/[0.02] hover:bg-white/[0.08] hover:border-white/15 text-muted-text hover:text-white transition-all select-none"
               aria-label="Next testimonial"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <ChevronRight className="w-5 h-5" />
-            </button>
+            </motion.button>
 
             <button
               onClick={() => setIsPlaying((p) => !p)}
               className="p-2.5 border border-white/[0.05] rounded-xl bg-white/[0.01] hover:bg-white/[0.06] text-muted-text/60 hover:text-white transition-all select-none ml-1"
               aria-label={isPlaying ? "Pause auto-play" : "Resume auto-play"}
-              title={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
             </button>

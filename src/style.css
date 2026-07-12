@@ -2022,3 +2022,106 @@ section {
     animation: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CHROMOLOG MOTION SYSTEM — Premium Animation CSS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Infinite Marquee (Tech Stack) ──────────────────────────────────── */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  animation: marquee-scroll 28s linear infinite;
+  will-change: transform;
+}
+
+/* ── Animated Grid Drift (Hero Background) ──────────────────────────── */
+@keyframes grid-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+.animate-grid-drift {
+  animation: grid-drift 14s linear infinite;
+}
+
+/* ── Core Stack Draggable Cursor ─────────────────────────────────────── */
+.core-stack-scroll {
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.core-stack-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Node Glow Pulse (Process Timeline) ─────────────────────────────── */
+@keyframes node-glow-pulse {
+  0%   { box-shadow: 0 0 8px rgba(79, 70, 229, 0.4); }
+  50%  { box-shadow: 0 0 20px rgba(0, 229, 255, 0.7), 0 0 40px rgba(79, 70, 229, 0.3); }
+  100% { box-shadow: 0 0 8px rgba(79, 70, 229, 0.4); }
+}
+
+.node-active-glow {
+  animation: node-glow-pulse 2s ease-in-out infinite;
+}
+
+/* ── Shimmer Line (AI connections) ──────────────────────────────────── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(1200%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ── Aurora Gradient CTA background ─────────────────────────────────── */
+@keyframes aurora-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.aurora-bg {
+  background: linear-gradient(
+    -45deg,
+    rgba(79, 70, 229, 0.15),
+    rgba(0, 229, 255, 0.1),
+    rgba(124, 58, 237, 0.12),
+    rgba(6, 182, 212, 0.08)
+  );
+  background-size: 400% 400%;
+  animation: aurora-shift 8s ease infinite;
+}
+
+/* ── Stack edge mask ─────────────────────────────────────────────────── */
+.stack-fade-edges {
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+/* ── Card hover glow utility ─────────────────────────────────────────── */
+.card-hover-glow {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.card-hover-glow:hover {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(79, 70, 229, 0.1);
+  transform: translateY(-4px);
+}
+
+/* ── Prefers-reduced-motion overrides ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .animate-grid-drift,
+  .aurora-bg,
+  .node-active-glow,
+  .animate-shimmer {
+    animation: none !important;
+  }
+}

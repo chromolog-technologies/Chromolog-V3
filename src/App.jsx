@@ -20,6 +20,7 @@ import CursorFollower from "./components/CursorFollower";
 import AIChat from "./components/AIChat";
 import CookieConsent from "./components/CookieConsent";
 import PageLoader from "./components/PageLoader";
+import ScrollProgress from "./components/motion/ScrollProgress";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
@@ -235,6 +236,9 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-bg-dark text-white-text overflow-hidden font-body selection:bg-primary/30 selection:text-white">
+      {/* Scroll Progress Bar */}
+      {resolvedPage === "home" && <ScrollProgress />}
+
       {/* Accessibility: Skip Link */}
       <a href="#main-content" className="skip-link">
         Skip to main content
