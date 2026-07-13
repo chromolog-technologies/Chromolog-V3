@@ -232,7 +232,7 @@ export default function App() {
   };
 
   // Determine which page to show (fallback to 404 for unknown values)
-  const knownPages = ["home", "privacy", "terms", "blog", "careers", "products", "404", "500", "offline", "maintenance"];
+  const knownPages = ["home", "privacy", "terms", "blog", "careers", "404", "500", "offline", "maintenance"];
   const resolvedPage = knownPages.includes(activePage) ? activePage : "404";
 
   return (
@@ -303,12 +303,6 @@ export default function App() {
             </Suspense>
           )}
           {resolvedPage === "careers" && <Careers />}
-
-          {resolvedPage === "products" && (
-            <Suspense fallback={<SectionSkeleton />}>
-              <Products navigateToSection={navigateToSection} setActivePage={setActivePage} />
-            </Suspense>
-          )}
           {resolvedPage === "404" && <NotFound setActivePage={setActivePage} />}
         </main>
       </ErrorBoundary>

@@ -10,7 +10,7 @@ import Button from "./ui/Button";
 import BrandLogo from "./BrandLogo";
 import { easings } from "../motion/easings";
 
-const pageItems = new Set(["blog", "careers", "products"]);
+const pageItems = new Set(["blog", "careers"]);
 
 export default function Header({ activePage = "home", setActivePage, navigateToSection }) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -59,7 +59,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
     setIsDrawerOpen(false);
     if (pageItems.has(sectionId)) {
       setActivePage(sectionId);
-      window.history.pushState({}, "", `/${sectionId}`);
+      window.history.pushState({}, "", sectionId === "blog" ? "/blog" : "/careers");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       window.history.pushState({}, "", "/");
@@ -79,10 +79,9 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
     { label: "Home", id: "home" },
     { label: "About", id: "about" },
     { label: "Projects", id: "projects" },
-    { label: "Products", id: "products" },
     { label: "Services", id: "services" },
     { label: "AI Capabilities", id: "ai" },
-    { label: "SaaS", id: "product" },
+    { label: "Products", id: "product" },
     { label: "Process", id: "process" },
     { label: "Knowledge Hub", id: "blog" },
     { label: "Careers", id: "careers" },
@@ -90,7 +89,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
   ];
 
   const isActive = (item) => {
-    if (pageItems.has(item.id)) return activePage === item.id;
+    if (item.id === "blog" || item.id === "careers") return activePage === item.id;
     return activePage === "home" && activeSection === item.id;
   };
 
@@ -175,7 +174,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
             {menuItems.map((item) => (
               <a
                 key={item.id}
-                href={pageItems.has(item.id) ? `/${item.id}` : `#${item.id}`}
+                href={item.id === "careers" ? "/careers" : item.id === "blog" ? "/blog" : `#${item.id}`}
                 onClick={(e) => handleLinkClick(e, item.id)}
                 aria-current={isActive(item) ? "page" : undefined}
                 className={`relative whitespace-nowrap px-2.5 2xl:px-3 py-2 text-[12px] 2xl:text-sm font-heading font-semibold transition-colors duration-300 group ${
@@ -311,7 +310,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
                   {menuItems.map((item, i) => (
                     <motion.a
                       key={item.id}
-                      href={pageItems.has(item.id) ? `/${item.id}` : `#${item.id}`}
+                      href={item.id === "careers" ? "/careers" : item.id === "blog" ? "/blog" : `#${item.id}`}
                       onClick={(e) => handleLinkClick(e, item.id)}
                       aria-current={isActive(item) ? "page" : undefined}
                       custom={i}

@@ -79,8 +79,8 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
     { label: "Home", id: "home" },
     { label: "About", id: "about" },
     { label: "Projects", id: "projects" },
-    { label: "Products", id: "products" },
     { label: "Services", id: "services" },
+    { label: "Products", id: "products" },
     { label: "AI Capabilities", id: "ai" },
     { label: "SaaS", id: "product" },
     { label: "Process", id: "process" },
@@ -90,7 +90,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
   ];
 
   const isActive = (item) => {
-    if (pageItems.has(item.id)) return activePage === item.id;
+    if (item.id === "blog" || item.id === "careers") return activePage === item.id;
     return activePage === "home" && activeSection === item.id;
   };
 

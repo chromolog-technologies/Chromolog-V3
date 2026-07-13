@@ -38,6 +38,10 @@ export default function Footer({ setActivePage, navigateToSection }) {
       setActivePage("careers");
       window.history.pushState({}, "", "/careers");
       window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (sectionId === "products") {
+      setActivePage("products");
+      window.history.pushState({}, "", "/products");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       window.history.pushState({}, "", "/");
       navigateToSection(sectionId);
@@ -168,6 +172,7 @@ export default function Footer({ setActivePage, navigateToSection }) {
               {[
                 { href: "#about", id: "about", label: "About Us" },
                 { href: "#projects", id: "projects", label: "Our Projects" },
+                { href: "/products", id: "products", label: "Products" },
                 { href: "#services", id: "services", label: "Services" },
                 { href: "#ai", id: "ai", label: "AI Capabilities" },
                 { href: "#product", id: "product", label: "SaaS Product" },
