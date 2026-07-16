@@ -173,8 +173,10 @@ export default function ThreeScene() {
     // 8. Animation & Render loop
     const animationStart = performance.now();
     let animId;
+    let paused = false; // tab hidden or scrolled offscreen
 
     const animate = () => {
+      if (paused) { animId = 0; return; }
       animId = requestAnimationFrame(animate);
 
       const elapsedTime = (performance.now() - animationStart) / 1000;
@@ -277,7 +279,23 @@ export default function ThreeScene() {
 
     animate();
 
-    // 9. Resize handler
+    // 9. Pause when tab inactive or scene scrolled offscreen (performance)
+    let inView = true;
+    const syncPaused = () => {
+      const shouldPause = document.hidden || !inView;
+      if (shouldPause === paused) return;
+      paused = shouldPause;
+      if (!paused && !animId) animate();
+    };
+    const onVisibility = () => syncPaused();
+    const io = new IntersectionObserver(
+      ([entry]) => { inView = entry.isIntersecting; syncPaused(); },
+      { threshold: 0.01 }
+    );
+    io.observe(container);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    // 10. Resize handler
     const handleResize = () => {
       if (!containerRef.current) return;
       const w = container.clientWidth;

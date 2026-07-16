@@ -19,6 +19,8 @@
     { "source": "/offline", "destination": "/" },
     { "source": "/blog", "destination": "/" },
     { "source": "/privacy", "destination": "/" },
-    { "source": "/terms", "destination": "/" }
+    { "source": "/terms", "destination": "/" },
+    { "source": "/careers", "destination": "/" },
+    { "source": "/products", "destination": "/" }
   ]
 }

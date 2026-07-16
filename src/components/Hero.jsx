@@ -14,6 +14,7 @@ import { trackCTA } from "../utils/analytics";
 import { detectIndustry, trackCTAInterest, trackTechClick } from "../utils/visitor";
 import { easings } from "../motion/easings";
 import MagneticButton from "./motion/MagneticButton";
+import DragMarquee from "./motion/DragMarquee";
 
 const ThreeScene = lazy(() => import("./ThreeScene"));
 
@@ -110,7 +111,6 @@ export default function Hero({ navigateToSection }) {
   const [wordIndex, setWordIndex] = useState(0);
   const heroRef = useRef(null);
   const [industry, setIndustry] = useState(() => detectIndustry());
-  const [isMarqueePaused, setIsMarqueePaused] = useState(false);
   const activePersonalization = personalization[industry];
 
   // Mouse parallax raw values
@@ -437,53 +437,27 @@ export default function Hero({ navigateToSection }) {
             Our Core Stack
           </div>
 
-          {/* Infinite scrolling marquee container */}
-          <div
-            className="w-full overflow-hidden relative"
-            style={{
-              maskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
-              WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
-            }}
-            onMouseEnter={() => setIsMarqueePaused(true)}
-            onMouseLeave={() => setIsMarqueePaused(false)}
-          >
-            <div
-              className="flex gap-3 md:gap-4 items-center py-2"
-              style={{
-                width: "max-content",
-                animation: `marquee-scroll 28s linear infinite`,
-                animationPlayState: isMarqueePaused ? "paused" : "running",
-              }}
-            >
-              {marqueeItems.map((tech, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => trackTechClick(tech.name)}
-                  className="core-stack-card flex shrink-0 items-center gap-2 px-4 py-2.5 border border-white/[0.06] rounded-xl bg-white/[0.025] text-muted-text hover:text-white-text hover:border-white/15 hover:bg-white/[0.05] transition-all duration-300 group"
-                  style={{ cursor: isMarqueePaused ? "pointer" : "default" }}
-                  aria-label={`Technology: ${tech.name}`}
-                >
-                  <i
-                    className={`${tech.icon} text-lg transition-transform duration-300 group-hover:scale-110`}
-                    style={{ color: tech.color }}
-                  />
-                  <span className="text-xs font-semibold font-heading tracking-wide whitespace-nowrap">
-                    {tech.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Infinite scrolling marquee — draggable with momentum */}
+          <DragMarquee speed={44} className="gap-3 md:gap-4 py-2">
+            {marqueeItems.map((tech, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => trackTechClick(tech.name)}
+                className="core-stack-card flex shrink-0 items-center gap-2 px-4 py-2.5 border border-white/[0.06] rounded-xl bg-white/[0.025] text-muted-text hover:text-white-text hover:border-white/15 hover:bg-white/[0.05] transition-all duration-300 group"
+                aria-label={`Technology: ${tech.name}`}
+              >
+                <i
+                  className={`${tech.icon} text-lg transition-transform duration-300 group-hover:scale-110`}
+                  style={{ color: tech.color }}
+                />
+                <span className="text-xs font-semibold font-heading tracking-wide whitespace-nowrap">
+                  {tech.name}
+                </span>
+              </button>
+            ))}
+          </DragMarquee>
         </div>
-
-        {/* Marquee keyframe injected inline */}
-        <style>{`
-          @keyframes marquee-scroll {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-          }
-        `}</style>
       </section>
     </>
   );

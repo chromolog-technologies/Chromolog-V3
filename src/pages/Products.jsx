@@ -21,7 +21,6 @@ import ProductsCTA from "../components/products/ProductsCTA";
 import ProductModal from "../components/products/ProductModal";
 
 import { FEATURED_PRODUCTS } from "../data/products";
-import { pageTransitionVariants } from "../motion/variants";
 import { easings } from "../motion/easings";
 import { trackEvent } from "../utils/analytics";
 
@@ -85,7 +84,7 @@ export default function Products({ navigateToSection, setActivePage }) {
     );
     setMeta(
       "keywords",
-      "AI software company, enterprise software, SaaS development, healthcare software, education ERP, HRMS, CRM development, custom software, wedding invitation SaaS, hospital management software, business automation"
+      "AI software company, enterprise software, SaaS development, healthcare software, education ERP, HRMS, CRM development, custom software, hospital management software, business automation"
     );
     setMeta("og:title", "Products — Chromolog Technologies", true);
     setMeta("og:description", "AI-first SaaS and enterprise products engineered to scale businesses worldwide.", true);
@@ -176,13 +175,9 @@ export default function Products({ navigateToSection, setActivePage }) {
 
   const selectIndustry = () => scrollTo("enterprise-solutions");
 
-  const Wrapper = prefersReduced ? "div" : motion.div;
-  const wrapperProps = prefersReduced
-    ? {}
-    : { variants: pageTransitionVariants, initial: "initial", animate: "enter", exit: "exit" };
-
+  // Page-level enter/exit is handled by <PageTransition> in App.jsx.
   return (
-    <Wrapper {...wrapperProps} className="relative">
+    <div className="relative">
       {/* HERO */}
       <ProductsHero onExplore={() => scrollTo("featured-products")} onDemo={goContact} />
 
@@ -296,6 +291,6 @@ export default function Products({ navigateToSection, setActivePage }) {
         onClose={() => setModalProduct(null)}
         onDemo={requestDemo}
       />
-    </Wrapper>
+    </div>
   );
 }

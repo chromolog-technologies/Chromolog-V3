@@ -3462,3 +3462,40 @@ section {
 @media (prefers-reduced-motion: reduce) {
   .soon-shimmer, .prod-card-spot { transition: none !important; }
 }
+
+/* ── HoverGlow — cursor-tracking radial glow (motion library) ──────────── */
+.hover-glow-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.hover-glow-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    var(--hg-size, 320px) circle at var(--hg-x, 50%) var(--hg-y, 50%),
+    var(--hg-color, rgba(0, 229, 255, 0.14)),
+    transparent 65%
+  );
+  z-index: 0;
+}
+.hover-glow-wrap:hover .hover-glow-layer,
+.hover-glow-wrap:focus-within .hover-glow-layer {
+  opacity: 1;
+}
+
+/* ── Marquee drag state (core stack) ─────────────────────────────────────── */
+.marquee-drag {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.marquee-drag.is-dragging {
+  cursor: grabbing;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-glow-layer { transition: none; }
+}

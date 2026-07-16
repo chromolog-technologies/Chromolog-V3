@@ -21,6 +21,7 @@ import AIChat from "./components/AIChat";
 import CookieConsent from "./components/CookieConsent";
 import PageLoader from "./components/PageLoader";
 import ScrollProgress from "./components/motion/ScrollProgress";
+import PageTransition from "./components/motion/PageTransition";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
@@ -272,6 +273,8 @@ export default function App() {
       {/* Main Content Area */}
       <ErrorBoundary>
         <main id="main-content" className="relative z-10 pt-20">
+          <AnimatePresence mode="wait">
+          <PageTransition key={resolvedPage}>
           {resolvedPage === "home" && (
             <>
               <Hero navigateToSection={navigateToSection} />
@@ -304,12 +307,15 @@ export default function App() {
           )}
           {resolvedPage === "careers" && <Careers />}
 
+
           {resolvedPage === "products" && (
             <Suspense fallback={<SectionSkeleton />}>
               <Products navigateToSection={navigateToSection} setActivePage={setActivePage} />
             </Suspense>
           )}
           {resolvedPage === "404" && <NotFound setActivePage={setActivePage} />}
+          </PageTransition>
+          </AnimatePresence>
         </main>
       </ErrorBoundary>
 

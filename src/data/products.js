@@ -39,54 +39,6 @@ export const CATEGORIES = [
 // ── Featured Products ────────────────────────────────────────────────────────
 export const FEATURED_PRODUCTS = [
   {
-    id: "wedding-saas",
-    name: "Wedding Invitation SaaS",
-    category: "SaaS Platform",
-    status: "development",
-    icon: "ri-heart-3-line",
-    gradient: ["#f472b6", "#7c3aed"],
-    accent: "#f472b6",
-    tags: ["saas"],
-    industries: ["hospitality"],
-    tech: ["Next.js", "Laravel", "PostgreSQL", "AWS"],
-    tagline: "Elegant, interactive wedding websites — built in minutes.",
-    description:
-      "A premium platform for creating elegant, interactive wedding invitation websites with RSVP management, custom themes, countdowns, music, galleries, QR sharing, analytics, and cloud hosting.",
-    features: [
-      "Animated Invitations",
-      "Guest Management",
-      "Custom Domain",
-      "Background Music",
-      "Photo Gallery",
-      "Event Timeline",
-      "Digital RSVP",
-      "QR Code Sharing",
-      "Live Analytics",
-      "Admin Dashboard",
-    ],
-    hasDemo: true,
-    demoTarget: "wedding",
-    detail: {
-      overview:
-        "Wedding Invitation SaaS turns a couple's story into a living, animated microsite. Choose a theme, drop in photos and event details, and publish a beautiful invitation on a custom domain — no code, no designer, no printing.",
-      problem:
-        "Paper invitations are expensive, slow, and impossible to update. Couples juggle RSVPs over WhatsApp and spreadsheets, lose headcounts, and have no way to share directions, timelines, or memories in one place.",
-      audience: ["Engaged couples", "Wedding planners", "Event agencies", "Invitation studios"],
-      featureGroups: [
-        { title: "For the couple", items: ["Theme builder & live preview", "Photo & video galleries", "Background music & timeline", "Custom domain + QR"] },
-        { title: "For guests", items: ["One-tap RSVP", "Add-to-calendar", "Maps & directions", "Multi-language"] },
-        { title: "Admin", items: ["Guest & meal tracking", "Real-time analytics", "Bulk messaging", "Cloud hosting"] },
-      ],
-      architecture: [
-        "Next.js edge-rendered guest sites for instant loads worldwide",
-        "Laravel API + PostgreSQL for RSVP, guest lists and billing",
-        "S3 + CDN media pipeline with on-the-fly image optimization",
-        "Stripe/Razorpay subscriptions with per-tenant custom domains",
-      ],
-      roadmap: ["Gift registry & UPI collections", "AI theme generator", "WhatsApp RSVP bot", "Live-stream integration"],
-    },
-  },
-  {
     id: "alphagrew",
     name: "Alphagrew",
     category: "Education ERP",
@@ -448,10 +400,10 @@ export const INDUSTRIES = [
     icon: "ri-restaurant-2-line",
     color: "#ec4899",
     tagline: "Delight guests, streamline operations.",
-    products: ["Restaurant ERP", "Wedding Invitation SaaS", "Booking Engine"],
+    products: ["Restaurant ERP", "Booking Engine", "Event Management System"],
     technologies: ["Next.js", "Laravel", "AWS", "PostgreSQL"],
     benefits: ["Contactless ordering", "Event automation", "Occupancy analytics"],
-    caseStudy: { title: "Wedding Invitation SaaS", metric: "Minutes to publish", desc: "No-code animated event sites with RSVP and analytics." },
+    caseStudy: { title: "Restaurant ERP", metric: "Orders automated", desc: "End-to-end restaurant management with kitchen display, billing, and analytics." },
   },
   {
     id: "finance",
@@ -556,7 +508,7 @@ export const PHILOSOPHY = [
 // ── Roadmap timeline ─────────────────────────────────────────────────────────
 export const ROADMAP = [
   { period: "Q3 2026", theme: "AI Utilities", items: ["AI Proposal Generator (Beta)", "AI Resume Builder (Beta)", "LLM guardrail toolkit"], tone: "purple" },
-  { period: "Q4 2026", theme: "Vertical SaaS", items: ["Restaurant ERP launch", "Retail POS SaaS", "AI Invoice Generator", "Wedding SaaS 1.0"], tone: "secondary" },
+  { period: "Q4 2026", theme: "Vertical SaaS", items: ["Restaurant ERP launch", "Retail POS SaaS", "AI Invoice Generator", "Event Management SaaS"], tone: "secondary" },
   { period: "Q1 2027", theme: "Care & Fitness", items: ["Clinic Management", "Gym Management", "HumaNode HRMS GA"], tone: "success" },
   { period: "Q2 2027", theme: "Field Operations", items: ["Real Estate CRM", "Construction ERP", "Vehicle Service Platform"], tone: "accent" },
 ];

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Briefcase, CheckCircle2, Upload, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Upload, Sparkles } from "lucide-react";
 import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
@@ -14,24 +14,13 @@ const benefits = [
   "Real client exposure",
 ];
 
-const roles = [
-  { role: "Frontend Developer", type: "Full-time", location: "Remote / Hybrid", experience: "1-3 years" },
-  { role: "Laravel Developer", type: "Full-time", location: "Remote / Hybrid", experience: "1-4 years" },
-  { role: "Flutter Developer", type: "Full-time", location: "Remote / Hybrid", experience: "1-3 years" },
-  { role: "UI/UX Designer", type: "Freelance", location: "Remote", experience: "1-3 years" },
-  { role: "Digital Marketing Executive", type: "Full-time", location: "Hybrid", experience: "1-2 years" },
-  { role: "AI/ML Intern", type: "Internship", location: "Remote / Hybrid", experience: "Fresher" },
-];
-
 export default function Careers() {
-  const [selectedRole, setSelectedRole] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     setSubmitted(true);
     event.currentTarget.reset();
-    setSelectedRole("");
   };
 
   const scrollToForm = () => {
@@ -94,51 +83,6 @@ export default function Careers() {
           </div>
         </div>
 
-        <div className="mb-16 md:mb-20">
-          <div className="section-head mb-10">
-            <Badge variant="ai" className="mb-3 px-3 py-1 text-xs">Open Positions</Badge>
-            <h2>Find your next role.</h2>
-            <p>Sample openings for developers, designers, marketers, and AI interns.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {roles.map((item, index) => (
-              <motion.div
-                key={item.role}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.45, delay: index * 0.04 }}
-              >
-                <Card variant="glass" className="h-full p-6 border-white/[0.08] hover:border-accent/20 transition-colors">
-                  <div className="flex items-start gap-3 mb-5">
-                    <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                      <Briefcase className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-heading font-bold text-white">{item.role}</h3>
-                      <p className="text-xs text-muted-text mt-1">{item.type} • {item.location}</p>
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-text font-semibold uppercase tracking-widest mb-5">
-                    Experience: <span className="text-white normal-case tracking-normal">{item.experience}</span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => {
-                      setSelectedRole(item.role);
-                      scrollToForm();
-                    }}
-                  >
-                    Apply
-                  </Button>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
         <div id="career-application" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start scroll-mt-28">
           <div className="lg:col-span-5">
             <Badge variant="ai" className="px-3 py-1 text-xs">Application</Badge>
@@ -167,15 +111,6 @@ export default function Careers() {
                   <label htmlFor="career-phone">Phone</label>
                   <input id="career-phone" name="phone" type="tel" required placeholder="+91 94002 30723" />
                 </div>
-                <div className="field">
-                  <label htmlFor="career-role">Role Applying For</label>
-                  <select id="career-role" name="role" required value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}>
-                    <option value="" disabled>Select a role</option>
-                    {roles.map((item) => (
-                      <option key={item.role} value={item.role}>{item.role}</option>
-                    ))}
-                  </select>
-                </div>
               </div>
               <div className="field">
                 <label htmlFor="career-portfolio">Portfolio / GitHub / LinkedIn</label>
@@ -191,7 +126,7 @@ export default function Careers() {
               </div>
               <div className="field">
                 <label htmlFor="career-message">Message</label>
-                <textarea id="career-message" name="message" placeholder="Tell us about your experience, strengths, and availability." />
+                <textarea id="career-message" name="message" placeholder="Tell us about your experience, strengths, and what you'd like to build." />
               </div>
               <Button variant="gradient" size="md" type="submit" icon={Sparkles} iconPosition="right" className="w-full md:w-auto">
                 Apply Now
