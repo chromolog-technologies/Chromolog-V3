@@ -27,14 +27,19 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
     if (activePage !== "home") return undefined;
 
     const sectionIds = ["home", "about", "projects", "services", "ai", "product", "process", "contact"];
+
+    // Use a single rootMargin "trigger band" — fires when the top of a section
+    // crosses the upper-middle of the viewport (40% from top, 55% from bottom).
+    // This avoids the hero section dominating a ratio-based comparison.
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target?.id) setActiveSection(visible.target.id);
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
       },
-      { threshold: [0.35, 0.55, 0.75], rootMargin: "-18% 0px -35% 0px" }
+      { threshold: 0, rootMargin: "-40% 0px -55% 0px" }
     );
 
     sectionIds.forEach((id) => {
@@ -62,6 +67,8 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
       window.history.pushState({}, "", `/${sectionId}`);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
+      // Immediately reflect active state — don't wait for IntersectionObserver
+      setActiveSection(sectionId);
       window.history.pushState({}, "", "/");
       navigateToSection(sectionId);
     }

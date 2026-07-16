@@ -206,10 +206,19 @@ export default function App() {
       }
     }
 
+    // Bridge: listen for scroll requests so Lenis owns ALL scrolling.
+    // navigateToSection dispatches this event instead of calling window.scrollTo.
+    const handleScrollRequest = (e) => {
+      const el = document.getElementById(e.detail.id);
+      if (el) lenis.scrollTo(el, { offset: -80, duration: 1.2 });
+    };
+    window.addEventListener("chromolog:scrollTo", handleScrollRequest);
+
     return () => {
       lenis.destroy();
       gsap.ticker.remove(lenisTicker);
       ScrollTrigger.getAll().forEach((t) => t.kill());
+      window.removeEventListener("chromolog:scrollTo", handleScrollRequest);
     };
   }, [activePage]);
 
@@ -219,16 +228,11 @@ export default function App() {
       window.history.pushState({}, "", "/");
       sessionStorage.setItem("scrollTarget", sectionId);
     } else {
-      const el = document.getElementById(sectionId);
-      if (el) {
-        const headerOffset = 80;
-        const elementPosition = el.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: prefersReducedMotion ? "auto" : "smooth",
-        });
-      }
+      // Dispatch custom event so Lenis handles the scroll — never call
+      // window.scrollTo directly as it conflicts with Lenis's scroll takeover.
+      window.dispatchEvent(
+        new CustomEvent("chromolog:scrollTo", { detail: { id: sectionId } })
+      );
     }
   };
 
