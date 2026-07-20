@@ -77,7 +77,7 @@ export default function CursorFollower() {
       document.removeEventListener("mouseenter", handleMouseEnter);
       window.removeEventListener("mouseover", handleMouseOver);
     };
-  }, [isVisible, cursorX, cursorY]);
+  }, []);
 
   if (!isVisible) return null;
 

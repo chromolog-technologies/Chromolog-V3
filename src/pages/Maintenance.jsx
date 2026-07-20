@@ -2,6 +2,12 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Settings, Clock, Mail, MessageSquare } from "lucide-react";
 
+const PARTICLES = [...Array(4)].map((_, i) => ({
+  width: 3 + Math.random() * 5,
+  height: 3 + Math.random() * 5,
+  color: i % 2 === 0 ? "#4f46e5" : "#00e5ff",
+}));
+
 const WHATSAPP_URL = "https://wa.me/919400230723?text=Hi%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.";
 
 export default function Maintenance() {
@@ -78,16 +84,16 @@ export default function Maintenance() {
         </motion.div>
 
         {/* Floating particles */}
-        {[...Array(4)].map((_, i) => (
+        {PARTICLES.map((p, i) => (
           <motion.div
             key={i}
             className="absolute rounded-full pointer-events-none"
             style={{
-              width: 3 + Math.random() * 5,
-              height: 3 + Math.random() * 5,
+              width: p.width,
+              height: p.height,
               left: `${12 + i * 20}%`,
               top: `${22 + (i % 3) * 22}%`,
-              background: i % 2 === 0 ? "#4f46e5" : "#00e5ff",
+              background: p.color,
               opacity: 0.2,
             }}
             animate={{ y: [-6, 6, -6], opacity: [0.1, 0.25, 0.1] }}

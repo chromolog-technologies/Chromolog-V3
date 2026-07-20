@@ -151,14 +151,14 @@ export default function Projects() {
 
   function openCaseStudy(proj) {
     setSelectedProject(proj);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Scroll to top of page so case study renders from the top
+    window.dispatchEvent(new CustomEvent("chromolog:scrollTo", { detail: { id: "projects" } }));
   }
 
   const handleCloseCaseStudy = () => {
     setSelectedProject(null);
     setTimeout(() => {
-      const el = document.getElementById("projects");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      window.dispatchEvent(new CustomEvent("chromolog:scrollTo", { detail: { id: "projects" } }));
     }, 100);
   };
 

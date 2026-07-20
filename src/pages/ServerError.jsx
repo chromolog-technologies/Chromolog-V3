@@ -2,6 +2,12 @@ import React from "react";
 import { motion } from "framer-motion";
 import { RefreshCw, Home, MessageSquare, AlertTriangle } from "lucide-react";
 
+const PARTICLES = [...Array(5)].map((_, i) => ({
+  width: 4 + Math.random() * 5,
+  height: 4 + Math.random() * 5,
+  color: i % 2 === 0 ? "#ef4444" : "#f59e0b",
+}));
+
 export default function ServerError({ setActivePage }) {
   const goHome = () => {
     if (setActivePage) setActivePage("home");
@@ -79,16 +85,16 @@ export default function ServerError({ setActivePage }) {
         </motion.div>
 
         {/* Floating particles */}
-        {[...Array(5)].map((_, i) => (
+        {PARTICLES.map((p, i) => (
           <motion.div
             key={i}
             className="absolute rounded-full pointer-events-none"
             style={{
-              width: 4 + Math.random() * 5,
-              height: 4 + Math.random() * 5,
+              width: p.width,
+              height: p.height,
               left: `${10 + i * 18}%`,
               top: `${20 + (i % 3) * 25}%`,
-              background: i % 2 === 0 ? "#ef4444" : "#f59e0b",
+              background: p.color,
               opacity: 0.2,
             }}
             animate={{ y: [-8, 8, -8], opacity: [0.1, 0.3, 0.1] }}

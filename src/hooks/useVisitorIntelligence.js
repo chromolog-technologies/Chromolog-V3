@@ -40,22 +40,22 @@ export default function useVisitorIntelligence(activePage) {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
 
-        if (!visible) return;
+          const sectionId = entry.target.id;
+          if (sectionId === activeSection.current) return;
 
-        const sectionId = visible.target.id;
-        if (sectionId === activeSection.current) return;
-
-        commitTime();
-        activeSection.current = sectionId;
-        enteredAt.current = Date.now();
-        trackVisitorSectionView(sectionId);
-        trackAnalyticsSectionView(sectionId);
+          commitTime();
+          activeSection.current = sectionId;
+          enteredAt.current = Date.now();
+          trackVisitorSectionView(sectionId);
+          trackAnalyticsSectionView(sectionId);
+        });
       },
-      { threshold: [0.35, 0.55, 0.75], rootMargin: "-12% 0px -18% 0px" }
+      // Trigger-band: fires when section top crosses the middle-ish of the viewport.
+      // Matches the Header's IntersectionObserver so analytics align with nav highlight.
+      { threshold: 0, rootMargin: "-40% 0px -55% 0px" }
     );
 
     OBSERVED_SECTIONS.forEach((id) => {

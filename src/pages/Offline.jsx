@@ -2,6 +2,12 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { WifiOff, RefreshCw, Home } from "lucide-react";
 
+const PARTICLES = [...Array(4)].map((_, i) => ({
+  width: 4 + Math.random() * 4,
+  height: 4 + Math.random() * 4,
+  color: i % 2 === 0 ? "#f59e0b" : "#4f46e5",
+}));
+
 export default function Offline({ setActivePage }) {
   const [checking, setChecking] = useState(false);
 
@@ -91,16 +97,16 @@ export default function Offline({ setActivePage }) {
         </motion.div>
 
         {/* Floating particles */}
-        {[...Array(4)].map((_, i) => (
+        {PARTICLES.map((p, i) => (
           <motion.div
             key={i}
             className="absolute rounded-full pointer-events-none"
             style={{
-              width: 4 + Math.random() * 4,
-              height: 4 + Math.random() * 4,
+              width: p.width,
+              height: p.height,
               left: `${15 + i * 20}%`,
               top: `${25 + (i % 2) * 30}%`,
-              background: i % 2 === 0 ? "#f59e0b" : "#4f46e5",
+              background: p.color,
               opacity: 0.2,
             }}
             animate={{ y: [-6, 6, -6], opacity: [0.1, 0.25, 0.1] }}

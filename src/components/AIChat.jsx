@@ -442,7 +442,7 @@ export default function AIChat({ setActivePage }) {
                   <button
                     onClick={() => {
                       setOpen(false);
-                      setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }), 200);
+                      setTimeout(() => window.dispatchEvent(new CustomEvent("chromolog:scrollTo", { detail: { id: "contact" } })), 200);
                     }}
                     className="flex items-center gap-1.5 text-[11px] font-bold text-muted-text/70 border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.05] hover:text-white px-3 py-1.5 rounded-xl transition-all font-heading"
                   >

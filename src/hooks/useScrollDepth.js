@@ -3,10 +3,16 @@ import { trackScrollDepth } from "../utils/analytics";
 
 /**
  * Tracks scroll depth milestones (25%, 50%, 75%, 100%).
- * Fires analytics events once per milestone per page session.
+ * Fires analytics events once per milestone per page route.
+ * Pass `activePage` so milestones reset on SPA navigation.
  */
-export default function useScrollDepth() {
+export default function useScrollDepth(activePage) {
   const fired = useRef(new Set());
+
+  // Reset milestones whenever the user navigates to a new page
+  useEffect(() => {
+    fired.current.clear();
+  }, [activePage]);
 
   useEffect(() => {
     const milestones = [25, 50, 75, 100];

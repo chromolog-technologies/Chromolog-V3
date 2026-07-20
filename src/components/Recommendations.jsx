@@ -60,21 +60,16 @@ export default function Recommendations({ setActivePage }) {
     trackCTAInterest(`Recommendation: ${rec.title}`);
 
     if (rec.type === "cta") {
-      // Scroll to contact
-      const el = document.getElementById("contact");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      // Scroll to contact via Lenis bridge
+      window.dispatchEvent(new CustomEvent("chromolog:scrollTo", { detail: { id: "contact" } }));
     } else if (rec.type === "blog") {
       setActivePage?.("blog");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.history.pushState({}, "", "/blog");
     } else if (rec.type === "product" || rec.type === "service") {
-      // Scroll to relevant section
-      const sectionMap = {
-        service: "services",
-        product: "product",
-      };
+      // Scroll to relevant section via Lenis bridge
+      const sectionMap = { service: "services", product: "product" };
       const targetId = sectionMap[rec.type] || "services";
-      const el = document.getElementById(targetId);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      window.dispatchEvent(new CustomEvent("chromolog:scrollTo", { detail: { id: targetId } }));
     }
 
     handleDismiss();

@@ -276,7 +276,7 @@ export default function IndustryExplorer() {
                         trackIndustryInterest(selectedInd.id);
                         const contactSection = document.getElementById("contact");
                         if (contactSection) {
-                          contactSection.scrollIntoView({ behavior: "smooth" });
+                          window.dispatchEvent(new CustomEvent("chromolog:scrollTo", { detail: { id: "contact" } }));
                         }
                       }}
                       icon={ArrowRight}

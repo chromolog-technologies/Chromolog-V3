@@ -2,6 +2,13 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Home, MessageSquare, FolderKanban } from "lucide-react";
 
+// Particle sizes computed once at module load — NOT inside render to avoid re-rolling
+const PARTICLES = [...Array(6)].map((_, i) => ({
+  width: 4 + Math.random() * 6,
+  height: 4 + Math.random() * 6,
+  color: i % 2 === 0 ? "#4f46e5" : "#00e5ff",
+}));
+
 export default function NotFound({ setActivePage }) {
   const goHome = () => {
     if (setActivePage) setActivePage("home");
@@ -85,16 +92,16 @@ export default function NotFound({ setActivePage }) {
         </motion.div>
 
         {/* Floating particles */}
-        {[...Array(6)].map((_, i) => (
+        {PARTICLES.map((p, i) => (
           <motion.div
             key={i}
             className="absolute rounded-full pointer-events-none"
             style={{
-              width: 4 + Math.random() * 6,
-              height: 4 + Math.random() * 6,
+              width: p.width,
+              height: p.height,
               left: `${10 + i * 15}%`,
               top: `${20 + (i % 3) * 25}%`,
-              background: i % 2 === 0 ? "#4f46e5" : "#00e5ff",
+              background: p.color,
               opacity: 0.25,
             }}
             animate={{ y: [-10, 10, -10], opacity: [0.15, 0.35, 0.15] }}

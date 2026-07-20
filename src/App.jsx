@@ -22,10 +22,20 @@ import CookieConsent from "./components/CookieConsent";
 import PageLoader from "./components/PageLoader";
 import ScrollProgress from "./components/motion/ScrollProgress";
 import PageTransition from "./components/motion/PageTransition";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import NotFound from "./pages/NotFound";
-import Careers from "./pages/Careers";
+// Lazy-loaded pages (reduces main bundle chunk)
+const Blog = lazy(() => import("./pages/Blog"));
+const Recommendations = lazy(() => import("./components/Recommendations"));
+const Products = lazy(() => import("./pages/Products"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Careers = lazy(() => import("./pages/Careers"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const ServerError = lazy(() => import("./pages/ServerError"));
+const Offline = lazy(() => import("./pages/Offline"));
+const Maintenance = lazy(() => import("./pages/Maintenance"));
+// Lazy-loaded heavy components
+const TechOrbit = lazy(() => import("./components/TechOrbit"));
+const IndustryExplorer = lazy(() => import("./components/IndustryExplorer"));
 
 // Analytics hooks
 import useScrollDepth from "./hooks/useScrollDepth";
@@ -33,12 +43,6 @@ import useTimeOnPage from "./hooks/useTimeOnPage";
 import useVisitorIntelligence from "./hooks/useVisitorIntelligence";
 import { trackPageView, trackWhatsApp } from "./utils/analytics";
 
-// Lazy-loaded heavy components
-const TechOrbit = lazy(() => import("./components/TechOrbit"));
-const IndustryExplorer = lazy(() => import("./components/IndustryExplorer"));
-const Blog = lazy(() => import("./pages/Blog"));
-const Recommendations = lazy(() => import("./components/Recommendations"));
-const Products = lazy(() => import("./pages/Products"));
 const WHATSAPP_URL = "https://wa.me/919400230723?text=Hi%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.";
 
 // Register ScrollTrigger plugin
@@ -118,7 +122,7 @@ export default function App() {
   });
 
   // Analytics hooks
-  useScrollDepth();
+  useScrollDepth(activePage);
   useTimeOnPage();
   useVisitorIntelligence(activePage);
 
@@ -302,22 +306,51 @@ export default function App() {
             </>
           )}
 
-          {resolvedPage === "privacy" && <Privacy />}
-          {resolvedPage === "terms" && <Terms />}
+          {resolvedPage === "privacy" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <Privacy />
+            </Suspense>
+          )}
+          {resolvedPage === "terms" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <Terms />
+            </Suspense>
+          )}
           {resolvedPage === "blog" && (
             <Suspense fallback={<SectionSkeleton />}>
               <Blog />
             </Suspense>
           )}
-          {resolvedPage === "careers" && <Careers />}
-
-
+          {resolvedPage === "careers" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <Careers />
+            </Suspense>
+          )}
           {resolvedPage === "products" && (
             <Suspense fallback={<SectionSkeleton />}>
               <Products navigateToSection={navigateToSection} setActivePage={setActivePage} />
             </Suspense>
           )}
-          {resolvedPage === "404" && <NotFound setActivePage={setActivePage} />}
+          {resolvedPage === "500" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <ServerError setActivePage={setActivePage} />
+            </Suspense>
+          )}
+          {resolvedPage === "offline" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <Offline setActivePage={setActivePage} />
+            </Suspense>
+          )}
+          {resolvedPage === "maintenance" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <Maintenance />
+            </Suspense>
+          )}
+          {resolvedPage === "404" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <NotFound setActivePage={setActivePage} />
+            </Suspense>
+          )}
           </PageTransition>
           </AnimatePresence>
         </main>

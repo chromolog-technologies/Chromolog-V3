@@ -79,7 +79,8 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
     setIsDrawerOpen(false);
     setActivePage("home");
     window.history.pushState({}, "", "/");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Use Lenis bridge so smooth scroll isn't fought with window.scrollTo
+    window.dispatchEvent(new CustomEvent("chromolog:scrollTo", { detail: { id: "home" } }));
   };
 
   const menuItems = [
