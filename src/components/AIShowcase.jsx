@@ -194,53 +194,36 @@ export default function AIShowcase() {
 
   const activeCapability = aiCapabilities.find((c) => c.id === activeTab);
 
-  // ── GSAP Pinned Scroll Storytelling (Desktop only) ────────────────────────
+  // ── Auto-rotate capabilities tabs periodically if user is idle ───────────────
   useEffect(() => {
-    if (prefersReducedMotion) return;
-
-    const isDesktop = window.innerWidth >= 1024;
-    if (!isDesktop || !sectionRef.current || !pinRef.current) return;
-
-    const totalSteps = aiCapabilities.length;
-
-    const trigger = ScrollTrigger.create({
-      trigger: sectionRef.current,
-      pin: pinRef.current,
-      start: "top top",
-      end: `+=${totalSteps * window.innerHeight * 0.8}`,
-      scrub: 0.6,
-      onUpdate: (self) => {
-        const stepIndex = Math.min(
-          Math.floor(self.progress * totalSteps),
-          totalSteps - 1
-        );
-        setActiveTab(aiCapabilities[stepIndex].id);
-      },
-    });
-
-    return () => trigger.kill();
+    const timer = setInterval(() => {
+      setActiveTab((prev) => {
+        const currentIndex = aiCapabilities.findIndex((c) => c.id === prev);
+        const nextIndex = (currentIndex + 1) % aiCapabilities.length;
+        return aiCapabilities[nextIndex].id;
+      });
+    }, 6000);
+    return () => clearInterval(timer);
   }, []);
 
   return (
     <section
       ref={sectionRef}
       id="ai"
-      className="relative bg-bg-dark overflow-hidden border-t border-white/[0.05]"
+      className="relative bg-bg-dark overflow-hidden border-t border-white/[0.05] py-16 md:py-24"
     >
       {/* Background neural grid */}
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.015] pointer-events-none z-0" />
       <div className="absolute top-[10%] right-[10%] w-[350px] h-[350px] bg-secondary/5 blur-[120px] pointer-events-none rounded-full" />
       <div className="absolute bottom-[10%] left-[10%] w-[300px] h-[300px] bg-purple-glow/4 blur-[100px] pointer-events-none rounded-full" />
 
-      {/* ── Pinnable content area ──────────────────────────────────────────── */}
-      <div ref={pinRef} className="py-16 md:py-24 min-h-screen flex flex-col justify-center">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10 w-full">
+      {/* ── Content area ──────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10 w-full">
 
           {/* Section Head */}
           <motion.div
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 28, filter: "blur(6px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.7, ease: easings.expo }}
             className="text-center max-w-3xl mx-auto mb-16"
           >
@@ -267,8 +250,7 @@ export default function AIShowcase() {
                     key={cap.id}
                     onClick={() => setActiveTab(cap.id)}
                     initial={prefersReducedMotion ? {} : { opacity: 0, x: -28 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: i * 0.07, ease: easings.expo }}
                     className={`relative flex items-start gap-4 p-5 rounded-2xl border text-left transition-all duration-350 ${
                       isActive
@@ -374,8 +356,7 @@ export default function AIShowcase() {
           <div className="border-t border-white/[0.08] pt-20">
             <motion.div
               initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: easings.expo }}
               className="text-center max-w-2xl mx-auto mb-12"
             >
@@ -388,8 +369,7 @@ export default function AIShowcase() {
                   <motion.div
                     key={cap.id}
                     initial={prefersReducedMotion ? {} : { opacity: 0, y: 28, filter: "blur(5px)" }}
-                    whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    viewport={{ once: true, margin: "-6% 0px" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                     transition={{ duration: 0.55, delay: i * 0.08, ease: easings.expo }}
                   >
                     <Card
@@ -425,7 +405,6 @@ export default function AIShowcase() {
           </div>
 
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
+    );
+  }
